@@ -436,6 +436,40 @@ function applyTheme(theme: { primary: string; accent: string }) {
   root.style.setProperty("--color-accent-rgb", hexToRgb(theme.accent));
 }
 
+const CSS_DEFAULT_PRIMARY = "#4f8fea";
+const CSS_DEFAULT_ACCENT = "#a855f7";
+
+/** Dashboard sometimes ships #000000 before Customize is filled in — unusable on a dark site. */
+function usableThemeColor(hex: string | null | undefined): string | null {
+  const raw = hex?.trim();
+  if (!raw) return null;
+  const norm = raw.toLowerCase().replace(/^#/, "");
+  if (norm === "000" || norm === "000000") return null;
+  return raw;
+}
+
+/** Remote theme when valid; otherwise bundled hub.config, then template CSS defaults. */
+function resolveTheme(
+  remote: RemoteConfig | null,
+  previewPrimary: string | null | undefined,
+  previewAccent: string | null | undefined,
+): { primary: string; accent: string } {
+  const fallback = {
+    primary: usableThemeColor(config.theme.primary_color) ?? CSS_DEFAULT_PRIMARY,
+    accent: usableThemeColor(config.theme.accent_color) ?? CSS_DEFAULT_ACCENT,
+  };
+  if (previewPrimary || previewAccent) {
+    return {
+      primary: usableThemeColor(previewPrimary) ?? fallback.primary,
+      accent: usableThemeColor(previewAccent) ?? fallback.accent,
+    };
+  }
+  return {
+    primary: usableThemeColor(remote?.theme.primary) ?? fallback.primary,
+    accent: usableThemeColor(remote?.theme.accent) ?? fallback.accent,
+  };
+}
+
 function applyLogo(logoUrl: string | null) {
   for (const id of ["nav-logo-img", "footer-logo-img"]) {
     const img = document.getElementById(id) as HTMLImageElement | null;
@@ -2844,15 +2878,11 @@ async function init() {
   const remote = bundle?.config ?? null;
   const savedSections: Record<string, boolean> = remote?.sections ?? {};
 
-  // Theme: URL overrides beat saved config beat bundled defaults.
-  const primary =
-    (isPreview ? params?.get("primary") : null) ??
-    remote?.theme.primary ??
-    config.theme.primary_color;
-  const accent =
-    (isPreview ? params?.get("accent") : null) ??
-    remote?.theme.accent ??
-    config.theme.accent_color;
+  const { primary, accent } = resolveTheme(
+    remote,
+    isPreview ? params?.get("primary") : null,
+    isPreview ? params?.get("accent") : null,
+  );
   applyTheme({ primary, accent });
 
   // Logo: in preview, a URL `logo=` param wins (including empty-string
