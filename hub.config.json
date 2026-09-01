@@ -1,16 +1,19 @@
 {
-  "hub_name": "UW-Platt AI Club",
-  "hub_acronym": "UWP",
+  "hub_name": "Platteville AI Club",
+  "hub_acronym": "PAIC",
   "hub_id": "uw-platt-ai-club",
   "university": "University of Wisconsin–Platteville",
-  "description": "",
+  "description": "UW-Platteville's student-run applied AI community — workshops, projects, and real portfolio work. No experience required.",
+  "about": "Platteville AI Club (PAIC) is UW-Platteville's home for students who want to build with AI, not just read about it.\n\nWe're a chapter of the ALL Applied AI Network — a nationwide community of university AI clubs sharing curriculum, tools, and industry connections. PAIC is its own club with its own leadership, events, and projects here on campus. The network gives us workshops, playbooks, and a platform to grow — we bring the Pioneer spirit.\n\nWhether you're in computer science, engineering, business, or just curious — show up, build something, and grow with a community that ships.",
   "theme": {
-    "primary_color": "#4f8fea",
-    "accent_color": "#a855f7"
+    "primary_color": "#1A64B7",
+    "accent_color": "#F58113"
   },
+  "logo_url": "https://bradybartel.github.io/uw-platt-ai-club-hub/paic-logo.png",
+  "site_url": "https://uw-platt-ai-club.all-ai-network.org/",
   "links": {
     "discord": "",
-    "github": "",
+    "github": "https://github.com/BradyBartel/uw-platt-ai-club-hub",
     "instagram": "",
     "linkedin": "",
     "email": ""
@@ -25,7 +28,16 @@
   "content": {
     "exclude_paths": [],
     "custom_order": [],
-    "local_content": []
+    "local_content": [
+      {
+        "title": "Welcome to PAIC",
+        "description": "What we're building at UW-Platteville and how to get involved from day one.",
+        "path": "local/welcome-to-paic.md",
+        "type": "local",
+        "section": "learning",
+        "thumbnail": ""
+      }
+    ]
   },
   "content_url": "https://all-ai-network.org"
 }

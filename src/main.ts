@@ -103,6 +103,8 @@ interface HubConfig {
   description: string;
   about: string;
   theme: { primary_color: string; accent_color: string };
+  logo_url?: string;
+  site_url?: string;
   links: Record<string, string>;
   officers: { name: string; role: string; image: string }[];
   events: { title: string; date: string; time: string; location: string; description: string }[];
@@ -468,6 +470,10 @@ function resolveTheme(
     primary: usableThemeColor(remote?.theme.primary) ?? fallback.primary,
     accent: usableThemeColor(remote?.theme.accent) ?? fallback.accent,
   };
+}
+
+function bundledLogoPath(): string | null {
+  return config.logo_url ? "./paic-logo.png" : null;
 }
 
 function applyLogo(logoUrl: string | null) {
@@ -2891,7 +2897,7 @@ async function init() {
     const logoParam = params.get("logo");
     applyLogo(logoParam && logoParam.length > 0 ? logoParam : null);
   } else {
-    applyLogo(remote?.logo_url ?? null);
+    applyLogo(bundledLogoPath() ?? remote?.logo_url ?? null);
   }
 
   // Section visibility: start from saved + fold in preview `off=` list.
