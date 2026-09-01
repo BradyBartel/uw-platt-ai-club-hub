@@ -1,13 +1,13 @@
 {
-  "hub_name": "My AI Club",
-  "hub_acronym": "MAIC",
-  "hub_id": "my-ai-club",
-  "university": "My University",
+  "hub_name": "UW-Platt AI Club",
+  "hub_acronym": "UWP",
+  "hub_id": "uw-platt-ai-club",
+  "university": "University of Wisconsin Platteville",
   "description": "A student-run applied AI community.",
   "about": "We're a student-run applied AI community focused on building real AI products. No prior experience required — our curriculum starts at absolute zero and builds to shipping production apps.\n\nWe meet weekly to work through hands-on workshops, host speaker events, and collaborate on projects. Whether you're writing your first line of code or deploying ML models, there's a place for you here.",
   "theme": {
-    "primary_color": "#6366f1",
-    "accent_color": "#06b6d4"
+    "primary_color": "#000000",
+    "accent_color": "#000000"
   },
   "links": {
     "discord": "",
@@ -17,9 +17,21 @@
     "email": ""
   },
   "officers": [
-    { "name": "Alex Johnson", "role": "President", "image": "" },
-    { "name": "Sam Rivera", "role": "VP of Engineering", "image": "" },
-    { "name": "Jordan Lee", "role": "VP of Events", "image": "" }
+    {
+      "name": "Alex Johnson",
+      "role": "President",
+      "image": ""
+    },
+    {
+      "name": "Sam Rivera",
+      "role": "VP of Engineering",
+      "image": ""
+    },
+    {
+      "name": "Jordan Lee",
+      "role": "VP of Events",
+      "image": ""
+    }
   ],
   "events": [
     {
@@ -56,5 +68,6 @@
       }
     ]
   },
-  "content_url": "https://all-ai-network.org"
+  "content_url": "https://all-ai-network.org",
+  "logo_url": "https://gdxifnnfirnzljtxnhch.supabase.co/storage/v1/object/public/chapter-logos/27b90900-006d-4ccb-b906-81ce6d753bd8/a6552fe4-dd9c-495e-8eee-569744160c82.png"
 }
