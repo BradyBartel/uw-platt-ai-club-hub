@@ -1,0 +1,3669 @@
+/* ══════════════════════════════════════════════════════════════════
+   ALL Applied AI Network — Hub Template
+   Modern, dark, theme-driven. Every color that responds to the
+   dashboard's Customize tab flows from --color-primary + --color-
+   accent — set via CSS custom properties in main.ts.
+   ══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Theme-driven (overridden at runtime by main.ts from dashboard) */
+  --color-primary: #4f8fea;
+  --color-primary-rgb: 79, 143, 234;
+  --color-accent: #a855f7;
+  --color-accent-rgb: 168, 85, 247;
+
+  /* Neutrals */
+  --bg-base: #0a0a0b;
+  --bg-surface: #141418;
+  --bg-surface-2: #1a1a1f;
+  --bg-elevated: #22222a;
+  --bg-subtle: rgba(255, 255, 255, 0.03);
+
+  --text-primary: #f5f5f7;
+  --text-secondary: #a8a8b3;
+  --text-tertiary: #6d6d78;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* Shape */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 0%, rgba(var(--color-primary-rgb), 0.08), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 85% 15%, rgba(var(--color-accent-rgb), 0.06), transparent 55%),
+    var(--bg-base);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Inter", sans-serif;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+p { margin: 0; }
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+a:hover { color: color-mix(in srgb, var(--color-primary) 80%, white); }
+
+code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.link--arrow::after {
+  content: " →";
+  transition: transform 0.15s;
+  display: inline-block;
+}
+.link--arrow:hover::after {
+  transform: translateX(2px);
+}
+
+.muted {
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+}
+
+.loading {
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+/* ══ Nav ════════════════════════════════════════════════════════ */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10, 10, 11, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+.nav__brand:hover { color: var(--text-primary); }
+
+.nav__logo-img {
+  height: 28px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.nav__logo {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+
+.nav__name {
+  color: var(--text-primary);
+}
+
+.nav__links {
+  display: flex;
+  gap: 1.75rem;
+}
+
+.nav__link {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.15s, background 0.15s;
+}
+.nav__link:hover {
+  color: var(--text-primary);
+}
+
+/* Tab state — active page gets a filled pill background in accent
+   color. Clicking a tab changes the hash, which main.ts listens for. */
+.nav__tab {
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+}
+.nav__tab:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.nav__tab--active {
+  background: rgba(var(--color-primary-rgb), 0.12);
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.28);
+}
+.nav__tab--active:hover {
+  background: rgba(var(--color-primary-rgb), 0.18);
+}
+
+.nav__toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  padding: 0.4rem;
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .nav__links {
+    display: none;
+  }
+  .nav__toggle {
+    display: inline-flex;
+  }
+  .nav__links--open {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    right: 1.5rem;
+    flex-direction: column;
+    gap: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.5rem;
+    min-width: 180px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+  .nav__links--open .nav__link {
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+  }
+  .nav__links--open .nav__link:hover {
+    background: var(--bg-subtle);
+  }
+}
+
+/* ══ Buttons ═══════════════════════════════════════════════════ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+  text-decoration: none;
+  border: 1px solid transparent;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: white;
+  box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.3);
+}
+.btn--primary:hover {
+  transform: translateY(-1px);
+  color: white;
+  box-shadow: 0 6px 24px rgba(var(--color-primary-rgb), 0.4);
+}
+
+.btn--ghost {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  backdrop-filter: blur(8px);
+}
+.btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Accented ghost variant for the third hero CTA — a soft tint of
+   --color-accent so the three audience buttons (member / partner /
+   learner) read as distinct without any one of them shouting.
+   Matches the visual weight of .btn--ghost but with an accent tie. */
+.btn--ghost-accent {
+  background: rgba(var(--color-accent-rgb), 0.08);
+  color: var(--text-primary);
+  border-color: rgba(var(--color-accent-rgb), 0.35);
+}
+.btn--ghost-accent:hover {
+  background: rgba(var(--color-accent-rgb), 0.14);
+  color: var(--text-primary);
+  border-color: rgba(var(--color-accent-rgb), 0.55);
+}
+
+.btn--sm {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8125rem;
+  border-radius: 7px;
+}
+
+/* ══ Hero ══════════════════════════════════════════════════════ */
+
+.hero {
+  position: relative;
+  min-height: 84vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2.75rem, 7vh, 5rem) 1.5rem 2.5rem;
+  overflow: hidden;
+}
+
+/* Layered ambient decoration: multiple radial gradients that feel
+   like a mesh + a subtle dot grid overlay so the hero reads as more
+   than just a solid block. The mesh animates slowly for a "breathing"
+   feel without being distracting. */
+.hero__glow {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140%;
+  height: 120%;
+  background:
+    radial-gradient(ellipse 40% 30% at 20% 10%, rgba(var(--color-primary-rgb), 0.32), transparent 60%),
+    radial-gradient(ellipse 38% 32% at 80% 20%, rgba(var(--color-accent-rgb), 0.28), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 50% 60%, rgba(var(--color-primary-rgb), 0.12), transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(70px);
+  animation: hero-breathe 14s ease-in-out infinite alternate;
+}
+
+@keyframes hero-breathe {
+  0%   { transform: translateX(-50%) scale(1); opacity: 0.85; }
+  100% { transform: translateX(-50%) scale(1.08); opacity: 1; }
+}
+
+/* Dot-grid pattern overlay — faint, just enough to give the hero
+   texture instead of reading as a flat color. Respects theme by
+   using currentColor at low opacity. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 1px
+  );
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at center, black, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Hero neural-network mesh ─────────────────────────────────────
+   Populated by main.ts::renderHeroNetwork. Nodes pulse between full
+   and low opacity at staggered intervals; edges slowly fade in/out.
+   Both inherit currentColor, which means the whole pattern recolors
+   the moment the eboard changes their theme in Customize. */
+
+.hero__network {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  /* Fade the whole mesh out toward the center so it frames the H1
+     rather than running through it. */
+  mask-image: radial-gradient(ellipse 60% 70% at center, transparent 10%, black 85%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 70% at center, transparent 10%, black 85%);
+}
+
+.hero-net-edges {
+  stroke-width: 0.9;
+  fill: none;
+}
+
+.hero-net-line {
+  stroke: var(--color-primary);
+  opacity: 0.18;
+  animation: hero-net-line 6s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+@keyframes hero-net-line {
+  0%   { opacity: 0.10; }
+  50%  { opacity: 0.26; }
+  100% { opacity: 0.14; }
+}
+
+.hero-net-node {
+  animation: hero-net-node 5s ease-in-out infinite alternate;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.hero-net-node--primary {
+  fill: var(--color-primary);
+  filter: drop-shadow(0 0 6px rgba(var(--color-primary-rgb), 0.45));
+}
+
+.hero-net-node--accent {
+  fill: var(--color-accent);
+  filter: drop-shadow(0 0 6px rgba(var(--color-accent-rgb), 0.5));
+}
+
+@keyframes hero-net-node {
+  0%   { opacity: 0.35; transform: scale(0.8); }
+  50%  { opacity: 0.85; transform: scale(1.1); }
+  100% { opacity: 0.55; transform: scale(0.95); }
+}
+
+/* Honor reduced-motion — the mesh still renders, just stops
+   animating. */
+@media (prefers-reduced-motion: reduce) {
+  .hero__glow,
+  .hero-net-line,
+  .hero-net-node {
+    animation: none;
+  }
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 820px;
+  text-align: center;
+}
+
+/* Kept subtle on purpose — the hero H1 is the attention sink, this
+   is just a locative. Hot primary color was competing with the H1
+   gradient. */
+.hero__eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero__title {
+  font-size: clamp(2.75rem, 7vw, 5.25rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  background: linear-gradient(180deg, var(--text-primary) 0%, rgba(245, 245, 247, 0.75) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.25rem;
+}
+
+.hero__subtitle {
+  font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 2rem;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero__actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Collapse the row entirely when no CTAs are rendered — otherwise the
+   ~2rem margin between subtitle and stats strip reads as broken. */
+.hero__actions:empty {
+  display: none;
+}
+
+.hero__stats {
+  position: relative;
+  z-index: 1;
+  margin-top: 5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+  max-width: 720px;
+  width: 100%;
+  padding: 1.75rem 1rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .hero__stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 3rem;
+    padding: 1.25rem 0.5rem;
+  }
+}
+
+.hero__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem;
+}
+
+.hero__stat-num {
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Title-case + natural letter-spacing — we reserve uppercase for the
+   .section__kicker system so the hierarchy stays single-voiced. */
+.hero__stat-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.hero__attribution {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1;
+}
+.hero__attribution:hover {
+  color: var(--text-secondary);
+}
+
+.hero__attribution-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 8px var(--color-primary);
+}
+
+/* ══ Sections ══════════════════════════════════════════════════ */
+
+.section {
+  padding: 5rem 1.5rem;
+  position: relative;
+}
+
+/* Mobile section rhythm — 5rem top/bottom on a 375w viewport wastes
+   screen and adds perceived load time. Step down. */
+@media (max-width: 640px) {
+  .section {
+    padding: 3.5rem 1.25rem;
+  }
+}
+
+/* Perceptible tint + an actual color step, not a gradient that
+   averages out to nothing. Borders alone don't give enough rhythm. */
+.section--alt {
+  background: rgba(255, 255, 255, 0.022);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.section__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.section__inner--narrow {
+  max-width: 820px;
+}
+
+.section__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .section__head {
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Tertiary color + the subtle uppercase pattern — reserving
+   --color-primary for interactive elements + data values (points,
+   costs, links) so the page hierarchy is legible. 12 sections all
+   opening with primary blue was flattening the layout. */
+.section__kicker {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.6rem;
+}
+
+.section__title {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.section__desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0;
+}
+
+.section__footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+/* ══ About ═════════════════════════════════════════════════════ */
+
+.about-content {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin-top: 2rem;
+}
+
+.about-content p {
+  margin: 0 0 1.25rem;
+}
+.about-content p:last-child { margin-bottom: 0; }
+
+.about-content strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.about-content a {
+  color: var(--color-primary);
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.4);
+}
+
+/* ══ Events grid ═══════════════════════════════════════════════ */
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.event-card {
+  /* Outer card shell — single column when no cover image, full-bleed
+     header strip when one is set. The .event-card__inner takes over
+     the date + body layout that used to live directly under
+     .event-card before the cover-image variant was added. */
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+
+.event-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Cover image header — 16:9 aspect, full-width. Matches the
+   dashboard preview so what eboards see is what visitors see. */
+.event-card__cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: rgba(127, 127, 127, 0.05);
+}
+
+.event-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.event-card__inner {
+  display: flex;
+  gap: 1.1rem;
+  padding: 1.2rem 1.25rem;
+  align-items: flex-start;
+}
+
+.event-card__date {
+  flex-shrink: 0;
+  width: 54px;
+  text-align: center;
+  padding: 0.35rem 0;
+  background: linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.12), rgba(var(--color-accent-rgb), 0.08));
+  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
+  border-radius: 10px;
+}
+
+/* Multi-day variant — adds a "→ N" range stripe below the day so
+   visitors see at a glance "this runs more than one day" without
+   us forcing a wider chip. */
+.event-card__date--range {
+  width: 64px;
+}
+
+.event-card__date-month {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.event-card__date-day {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-top: 0.1rem;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.event-card__date-range {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(var(--color-primary-rgb), 0.25);
+  font-variant-numeric: tabular-nums;
+}
+
+.event-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-card__type-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.event-card__type {
+  display: inline-block;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-tertiary);
+}
+
+/* Format chip — compact pill that surfaces only when the event
+   isn't pure in-person. Color-coded so visitors clock the format
+   at a glance without reading the pill content. */
+.event-card__format-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+}
+
+.event-card__format-chip--tree {
+  background: rgba(52, 211, 153, 0.13);
+  color: #34d399;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.event-card__format-chip--tree:hover {
+  background: rgba(52, 211, 153, 0.22);
+}
+
+.event-card__format-chip--virtual {
+  background: rgba(99, 102, 241, 0.14);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.event-card__format-chip--hybrid {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.event-card__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.3rem;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+
+.event-card__desc {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 0.5rem;
+}
+
+.event-card__desc p {
+  margin: 0 0 0.5rem;
+}
+
+.event-card__desc p:last-child {
+  margin-bottom: 0;
+}
+
+.event-card__desc strong {
+  color: var(--text-primary);
+}
+
+.event-card__desc a {
+  color: var(--color-primary);
+}
+
+.event-card__desc ul {
+  margin: 0.25rem 0 0.5rem 1.1rem;
+  padding: 0;
+}
+
+/* "Hosted by X" attribution — shown when this hub is surfacing
+   another chapter's event. Visually quiet; the host chapter name
+   gets emphasized via <strong>. */
+.event-card__cohost {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.4rem;
+}
+
+.event-card__cohost strong {
+  color: var(--text-secondary);
+}
+
+/* "Part of X" — a small breadcrumb-style badge above the title
+   linking the visitor to the umbrella event when both are in the
+   same window (parent_event_id resolves in the bundle). */
+.event-card__parent {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.3rem;
+}
+
+.event-card__parent strong {
+  color: var(--text-secondary);
+}
+
+/* Pills row — map link + Join virtually buttons. Sits between the
+   description and meta line so it reads as "where" then "when." */
+.event-card__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0.5rem;
+}
+
+.event-card__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-decoration: none;
+  max-width: 100%;
+}
+
+.event-card__pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.event-card__pill--map {
+  background: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--text-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.3);
+}
+
+.event-card__pill--map:hover {
+  background: rgba(var(--color-primary-rgb), 0.18);
+  border-color: rgba(var(--color-primary-rgb), 0.5);
+}
+
+.event-card__pill--map svg {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.event-card__pill--virtual {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--text-primary);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.event-card__pill--virtual:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.55);
+}
+
+.event-card__pill--virtual svg {
+  flex-shrink: 0;
+  color: #818cf8;
+}
+
+.event-card__meta {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* ══ Phase timeline ════════════════════════════════════════════
+   Renders inline on the event card when an event has phases
+   (kickoff → midpoint → finals → due-date). Numbered rows linked
+   by a vertical connector make the arc obvious; each row carries
+   its own format chip + when/where text so members see the whole
+   project at a glance without drilling in.
+   ────────────────────────────────────────────────────────────── */
+
+.event-card__phases {
+  margin: 0.6rem 0 0.65rem;
+  padding: 0.7rem 0.8rem 0.6rem;
+  background: color-mix(in srgb, var(--color-primary) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+  border-radius: 10px;
+}
+
+.event-card__phases-heading {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.55rem;
+}
+
+.event-card__phase-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  position: relative;
+}
+
+/* Vertical connector line behind the numbered badges so the rows
+   feel like a single sequence rather than a stack of cards. The
+   badges sit on top so the line appears to flow through them. */
+.event-card__phase-list::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: color-mix(in srgb, var(--color-primary) 28%, transparent);
+  border-radius: 1px;
+}
+
+.event-card__phase-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0;
+}
+
+.event-card__phase-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--bg-surface);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  position: relative;
+  z-index: 1;
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* Milestone numbers render as a filled dot so the timeline ends
+   read as "checkpoint reached" rather than "another meeting." */
+.event-card__phase-row--milestone .event-card__phase-num {
+  background: var(--color-primary);
+  color: var(--bg-base);
+}
+
+.event-card__phase-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 0.1rem;
+}
+
+.event-card__phase-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.event-card__phase-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.event-card__phase-when {
+  margin-top: 0.18rem;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.event-card__phase-loc {
+  color: var(--text-secondary);
+}
+
+.event-card__phase-desc {
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.event-card__phase-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.event-card__phase-chip--in_person {
+  background: rgba(34, 211, 238, 0.12);
+  color: #67e8f9;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+}
+
+.event-card__phase-chip--virtual {
+  background: rgba(167, 139, 250, 0.14);
+  color: #c4b5fd;
+  border: 1px solid rgba(167, 139, 250, 0.32);
+}
+
+.event-card__phase-chip--hybrid {
+  background: rgba(45, 212, 191, 0.14);
+  color: #5eead4;
+  border: 1px solid rgba(45, 212, 191, 0.32);
+}
+
+.event-card__phase-chip--milestone {
+  background: rgba(251, 191, 36, 0.14);
+  color: #fcd34d;
+  border: 1px solid rgba(251, 191, 36, 0.34);
+}
+
+.event-card__phase-points {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #4ade80;
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* ══ Empty state ═══════════════════════════════════════════════ */
+
+.empty-state {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--bg-surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+}
+
+.empty-state__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.45rem;
+}
+
+.empty-state__desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* ══ Leaderboard ═══════════════════════════════════════════════ */
+
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* Tier gradients shared across podium + medal icons */
+  --gold: linear-gradient(135deg, #fef3c7, #f59e0b 55%, #b45309);
+  --silver: linear-gradient(135deg, #f3f4f6, #9ca3af 55%, #4b5563);
+  --bronze: linear-gradient(135deg, #fed7aa, #ea580c 55%, #7c2d12);
+}
+
+.podium {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr;
+  gap: 1.25rem;
+  align-items: end;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .podium {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+}
+
+/* Podium card — giant translucent rank digit behind the content,
+   colored top stripe per tier, XP in the primary→accent gradient so
+   it reads as "earned." Height varies by rank so #1 literally
+   stands taller. */
+.podium-card {
+  position: relative;
+  padding: 2rem 1.4rem 1.5rem;
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-base));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.podium-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--tier-gradient, var(--silver));
+  z-index: 2;
+}
+
+.podium-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Oversized rank numeral behind everything — "watermark" style. */
+.podium-card__rank {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  background: var(--tier-gradient, var(--silver));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.1;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.podium-card__medal {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tier-color, #9ca3af);
+  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--tier-color, #9ca3af) 35%, transparent));
+}
+.podium-card__medal svg {
+  width: 100%;
+  height: 100%;
+}
+
+.podium-card__tier {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--tier-gradient, var(--silver));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.podium-card__name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.podium-card__xp {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+}
+
+.podium-card__xp-num {
+  font-size: 2.1rem;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.podium-card__xp-unit {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.podium-card__events {
+  font-size: 0.74rem;
+  color: var(--text-tertiary);
+}
+
+.podium-card__bar {
+  width: 75%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.podium-card__bar-fill {
+  height: 100%;
+  background: var(--tier-gradient, var(--silver));
+  border-radius: 999px;
+  transition: width 0.6s ease-out;
+}
+
+.podium-card__glow { display: none; }
+
+/* Tier variants — assign gradients + colors, plus tune padding/
+   height so #1 visually towers over 2 and 3. */
+.podium-card--rank-1 {
+  --tier-gradient: var(--gold);
+  --tier-color: #f59e0b;
+  padding: 2.75rem 1.4rem 2rem;
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow:
+    0 14px 44px rgba(245, 158, 11, 0.14),
+    inset 0 0 0 1px rgba(245, 158, 11, 0.28);
+}
+.podium-card--rank-1::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.22), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.podium-card--rank-2 {
+  --tier-gradient: var(--silver);
+  --tier-color: #9ca3af;
+  border-color: rgba(156, 163, 175, 0.3);
+}
+
+.podium-card--rank-3 {
+  --tier-gradient: var(--bronze);
+  --tier-color: #ea580c;
+  border-color: rgba(234, 88, 12, 0.3);
+}
+
+/* Desktop-only vertical offsets — a single shifted card on mobile
+   reads as a render bug, so keep flush below 640px. */
+@media (min-width: 641px) {
+  .podium-card--rank-1 { transform: translateY(-20px); }
+  .podium-card--rank-3 { transform: translateY(14px); }
+}
+
+/* The list below the podium — each row gets a micro XP bar so the
+   gap between members is visually legible, not just a number in a
+   right column. */
+.leaderboard-list {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 1.1rem;
+  align-items: center;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+
+.leaderboard-row:hover { background: rgba(255, 255, 255, 0.02); }
+.leaderboard-row:last-child { border-bottom: none; }
+
+.leaderboard-row__rank {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  font-weight: 700;
+  text-align: right;
+}
+
+.leaderboard-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.leaderboard-row__name {
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+
+.leaderboard-row__bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.leaderboard-row__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  border-radius: 999px;
+  transition: width 0.6s ease-out;
+}
+
+.leaderboard-row__meta {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.leaderboard-row__points {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.leaderboard-row__points-unit {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+/* ── Member badges (inline chips next to leaderboard names) ─────
+   Small, colored badge tiles shown inline with each member's name
+   on both the podium and the list. Makes the leaderboard visually
+   varied between members instead of being a pure numeric column. */
+
+.leaderboard-row__name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.leaderboard-row__name-row .leaderboard-row__name {
+  flex: 0 1 auto;
+}
+
+.member-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.podium-card .member-badges {
+  margin-top: 0.15rem;
+  justify-content: center;
+}
+
+.member-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
+  color: var(--color-primary);
+  flex-shrink: 0;
+  transition: transform 0.15s, background 0.15s;
+  cursor: default;
+}
+
+.member-badge:hover {
+  transform: translateY(-1px);
+  background: rgba(var(--color-primary-rgb), 0.18);
+}
+
+.member-badge svg {
+  width: 13px;
+  height: 13px;
+}
+
+.member-badge img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.member-badge--more {
+  width: auto;
+  min-width: 22px;
+  padding: 0 0.3rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border);
+}
+
+/* ── Points & Recognition explainer (home page, above badges) ─── */
+
+.points-explainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 2.25rem;
+}
+
+.points-explainer__card {
+  padding: 1.25rem 1.35rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.points-explainer__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
+  color: var(--color-primary);
+}
+
+.points-explainer__title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.points-explainer__desc {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* A smaller heading used inside a section ("Every badge we award"
+   under the explainer cards). Reads like a mid-section break. */
+.section__subhead {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin: 0 0 1.2rem;
+}
+
+/* ── Network profile callout (Beyond your chapter) ──────────────
+   Sits inside the "How it all works" / badges section, after the
+   badges grid. Surfaces the value of being part of the wider ALL
+   network for chapter members. Visually distinct enough to stand
+   out as a "wait, this connects to something bigger" moment. */
+.network-profile-callout {
+  margin-top: 2.5rem;
+  padding: 1.75rem 1.85rem;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--color-primary-rgb), 0.08),
+    rgba(var(--color-accent-rgb, var(--color-primary-rgb)), 0.05)
+  );
+  border: 1px solid rgba(var(--color-primary-rgb), 0.2);
+  border-radius: var(--radius-lg);
+}
+
+.network-profile-callout__head {
+  margin-bottom: 1.4rem;
+}
+
+.network-profile-callout__badge {
+  display: inline-block;
+  font-family: var(--font-mono, ui-monospace, "JetBrains Mono", monospace);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.3);
+  background: rgba(var(--color-primary-rgb), 0.08);
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.network-profile-callout__title {
+  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0 0 0.7rem;
+  line-height: 1.3;
+}
+
+.network-profile-callout__desc {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.network-profile-callout__fnref {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-left: 0.1em;
+}
+
+.network-profile-callout__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.1rem;
+}
+
+.network-profile-callout__item {
+  padding: 1rem 1.1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.network-profile-callout__item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+}
+
+.network-profile-callout__item-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.005em;
+}
+
+.network-profile-callout__item-desc {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Italics inside the body copy ("talent visibility") — pick up the
+   primary accent so the toggle name reads as a UI label, not just
+   emphasis. Members glancing at the paragraph spot the term they
+   need to look for in their dashboard settings. */
+.network-profile-callout__desc em {
+  font-style: normal;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ── "Where this leads" outcomes block ─────────────────────────
+   Concrete proof points (named cohort + network-wide salary delta)
+   sandwiched between the 3-card grid and the CTA row. Inherits
+   chapter theming via --color-primary, so each fork recolors with
+   the eboard's brand. The two outcome cards sit side-by-side at
+   ≥620px and stack on narrower viewports — the grid's auto-fit /
+   minmax handles that without a media query. Headline + cards +
+   single-line behavior CTA at the bottom; no second button so we
+   don't compete with the existing "Manage your profile" link. */
+.network-profile-callout__outcomes {
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.35rem 1.35rem;
+  background: rgba(var(--color-primary-rgb), 0.05);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.18);
+  border-radius: var(--radius-md, 8px);
+}
+
+.network-profile-callout__outcomes-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+  margin: 0 0 0.85rem;
+}
+
+.network-profile-callout__outcome-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 0.95rem;
+}
+
+.network-profile-callout__outcome-card {
+  padding: 1rem 1.1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.network-profile-callout__outcome-eyebrow {
+  font-family: var(--font-mono, ui-monospace, "JetBrains Mono", monospace);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.network-profile-callout__outcome-stat {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.network-profile-callout__outcome-stat strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.network-profile-callout__outcome-desc {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.network-profile-callout__outcome-desc strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Behavior CTA pinned to the bottom of the outcomes block — text-only,
+   no button. The icon nods at the QR check-in mechanism without
+   needing to spell it out twice in the copy. */
+.network-profile-callout__outcomes-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.network-profile-callout__outcomes-cta-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+}
+
+/* CTA row — pairs the dashboard link with a short reassurance line
+   so the call-to-action carries the opt-in promise inline. Stacks on
+   narrow viewports via flex-wrap. Sits between the three-card grid
+   and the methodology footnote. */
+.network-profile-callout__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.network-profile-callout__cta {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.4);
+  padding-bottom: 1px;
+  transition: border-bottom-color 0.15s;
+}
+.network-profile-callout__cta:hover {
+  border-bottom-color: var(--color-primary);
+}
+
+.network-profile-callout__cta-note {
+  font-size: 0.78rem;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.55));
+  line-height: 1.4;
+}
+
+.network-profile-callout__footnote {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.5));
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(var(--color-primary-rgb), 0.18);
+}
+
+.network-profile-callout__footnote sup {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-right: 0.2em;
+}
+
+.network-profile-callout__footnote a {
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.3);
+}
+.network-profile-callout__footnote a:hover {
+  border-bottom-color: var(--color-primary);
+}
+
+/* ══ Badges grid ═══════════════════════════════════════════════ */
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+
+.badge-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s;
+}
+
+.badge-card:hover {
+  border-color: var(--border-strong);
+}
+
+.badge-card__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
+}
+
+.badge-card__icon img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.badge-card__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.badge-card__name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+  line-height: 1.3;
+}
+
+.badge-card__desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.35rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.badge-card__count {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+/* ══ Merch grid ════════════════════════════════════════════════ */
+
+.merch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.merch-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.merch-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.merch-card__photo {
+  aspect-ratio: 4 / 3;
+  position: relative;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.merch-card__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.merch-card__photo-placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Gallery: primary image + horizontal thumbnail strip. */
+.merch-card__thumbs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.merch-card__thumb {
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.merch-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.merch-card__thumb:hover {
+  opacity: 1;
+}
+
+.merch-card__thumb.is-active {
+  opacity: 1;
+  border-color: var(--color-primary);
+}
+
+.merch-card__thumb:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.merch-card__body {
+  padding: 1rem 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.merch-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  /* A prose cost label ("finish a research group") is too long for the
+     inline pill — let it drop to its own line instead of overflowing. */
+  flex-wrap: wrap;
+}
+
+.merch-card__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.merch-card__cost {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(var(--color-primary-rgb), 0.14);
+  color: var(--color-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.3);
+  /* Wrap long prose costs rather than forcing the card wider. */
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.merch-card__desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.merch-card__stock {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  font-family: "JetBrains Mono", monospace;
+  padding-top: 0.25rem;
+}
+
+.merch-card__stock--empty {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* ══ Projects grid — chapter showcase ═════════════════════════
+   Taller than merch cards (these are showcase items, not shop
+   listings). Hover lifts the whole card; if a link_url is set,
+   the card IS the link and gets a subtle primary-color border
+   animation on hover. */
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.1rem;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  color: var(--text-primary);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.2s;
+}
+
+a.project-card {
+  /* Link variant — clickable entire card */
+  cursor: pointer;
+}
+
+.project-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  color: var(--text-primary);
+}
+
+a.project-card:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.55);
+}
+
+.project-card__photo {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background:
+    linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.12), rgba(var(--color-accent-rgb), 0.12)),
+    var(--bg-elevated);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-card__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.project-card:hover .project-card__photo img {
+  transform: scale(1.04);
+}
+
+.project-card__photo-placeholder {
+  color: var(--color-primary);
+  opacity: 0.45;
+}
+
+.project-card__year {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.project-card__body {
+  padding: 1.1rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 1;
+}
+
+.project-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.project-card__desc {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.project-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  padding-top: 0.35rem;
+  border-top: 1px dashed var(--border);
+}
+
+/* Rich cards (with files or linked event) get a slightly looser
+   body so the chip + file list have breathing room. The base card
+   stays compact for plain projects. */
+.project-card--rich .project-card__body {
+  gap: 0.65rem;
+}
+
+/* "From {event}" chip — same shape as the dashboard's chip so the
+   editor preview and the rendered card visually match. */
+.project-card__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.project-card__chip-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+/* Per-project file list — slides, papers, videos, external links. */
+.project-card__files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.project-card__file {
+  display: block;
+}
+
+.project-card__file-link {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+
+.project-card__file-link:hover {
+  border-color: var(--border-strong, var(--border));
+  background: var(--bg-hover, rgba(127, 127, 127, 0.04));
+  transform: translateX(1px);
+}
+
+.project-card__file-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(127, 127, 127, 0.08);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.project-card__file-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.project-card__file-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-card__file-kind {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.project-card__file-go {
+  color: var(--text-tertiary);
+  display: inline-flex;
+}
+
+.project-card__file-link:hover .project-card__file-go {
+  color: var(--color-primary);
+}
+
+/* Standalone "View project" CTA for rich cards (the anchor-wrap
+   pattern is dropped when files/event chips are present). */
+.project-card__view {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  align-self: flex-start;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.project-card__view:hover {
+  border-color: var(--color-primary);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* ══ Officers grid ═════════════════════════════════════════════ */
+
+.officers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+/* ══ Socials — latest posts from the club's linked accounts ═══ */
+
+.socials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.social-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.social-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+.social-card__media img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+}
+.social-card__body {
+  padding: 0.9rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+.social-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+.social-card__platform {
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+}
+.social-card__platform--linkedin {
+  background: rgba(59, 130, 246, 0.14);
+  color: #60a5fa;
+}
+.social-card__platform--instagram {
+  background: rgba(236, 72, 153, 0.14);
+  color: #f472b6;
+}
+.social-card__text {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  white-space: pre-line;
+}
+.social-card__link {
+  margin-top: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+a.social-card__link:hover {
+  text-decoration: underline;
+}
+
+.officer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+  padding: 1.5rem 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.officer-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.officer-card__avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.15), rgba(var(--color-accent-rgb), 0.15));
+  border: 1px solid var(--border-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  letter-spacing: -0.01em;
+}
+
+.officer-card__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.officer-card__name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  margin-top: 0.4rem;
+}
+
+.officer-card__role {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.officer-card__links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.officer-card__linkedin,
+.officer-card__email {
+  display: inline-flex;
+  color: var(--text-tertiary);
+  transition: color 0.15s;
+}
+.officer-card__linkedin:hover,
+.officer-card__email:hover {
+  color: var(--color-primary);
+}
+
+/* ══ CDN content cards (learning / workshops / playbooks) ═════ */
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  color: var(--text-primary);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
+}
+
+.card__thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--bg-elevated);
+}
+
+.card__body {
+  padding: 1rem 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  flex: 1;
+}
+
+.card__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.005em;
+  line-height: 1.35;
+}
+
+.card__desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card__badge {
+  display: inline-block;
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.card__badge--beginner { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+.card__badge--intermediate { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+/* Warm orange, not error red — pure #ef4444 was reading like a
+   validation error since we also use that for out-of-stock merch. */
+.card__badge--advanced { color: #fb923c; background: rgba(251, 146, 60, 0.1); }
+.card__badge--local {
+  color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.12);
+}
+
+.card__meta {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* ══ Footer ════════════════════════════════════════════════════ */
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 1.5rem 2.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  margin-top: 4rem;
+}
+
+/* Two-column desktop, three-row mobile. Socials go under the brand
+   so an empty socials slot doesn't leave a mid-row gap between
+   brand + attribution. */
+.footer__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "brand aain"
+    "socials aain";
+  gap: 0.75rem 2rem;
+  align-items: start;
+}
+
+.footer__brand { grid-area: brand; }
+.footer__socials { grid-area: socials; justify-content: flex-start; }
+.footer__aain { grid-area: aain; }
+
+/* When socials are empty (no dashboard links + no local config),
+   swallow the row so there's no hanging whitespace. */
+.footer__socials:empty { display: none; }
+
+@media (max-width: 720px) {
+  .footer__inner {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "brand"
+      "socials"
+      "aain";
+    gap: 1.25rem;
+    text-align: center;
+  }
+  .footer__socials { justify-content: center; }
+}
+
+.footer__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.footer__logo-img {
+  height: 40px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.footer__name {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.footer__uni {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+}
+
+.footer__socials {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.footer-social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: border-color 0.15s, color 0.15s, transform 0.15s;
+}
+.footer-social:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.footer__aain {
+  text-align: right;
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  align-self: center;
+}
+
+@media (max-width: 720px) {
+  .footer__aain { text-align: center; align-self: auto; }
+  .footer__brand { justify-content: center; }
+}
+
+.footer__aain strong {
+  color: var(--text-primary);
+}
+
+.footer__sub {
+  margin-top: 0.25rem;
+  color: var(--text-tertiary);
+}
+
+/* ══ Utility ══════════════════════════════════════════════════ */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ══ Learn page — full-height embedded tree visualization ══════════
+   The Learn page iframes the content repo's /tree.html so every hub
+   site inherits the canonical tree viz without reimplementing it.
+   Wrapper sizes the iframe to fill the remaining viewport below the
+   sticky nav + page header. */
+
+.section--learn {
+  padding: 0;
+}
+
+.learn-tree-wrap {
+  position: relative;
+  /* Nav (~64px) + page header (~140px) ≈ 210px, plus the footer
+     needs breathing room — min-height keeps the tree usable on any
+     viewport without a second scrollbar. */
+  min-height: min(900px, calc(100vh - 200px));
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.learn-tree-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--bg-base);
+  display: block;
+}
+
+.learn-tree-frame[hidden] { display: none; }
+
+.learn-tree-fallback {
+  position: absolute;
+  inset: 0;
+  padding: 3rem 1.5rem;
+  overflow-y: auto;
+  background: var(--bg-surface);
+}
+
+.learn-tree-fallback[hidden] { display: none; }
+
+/* ══ Page header band — non-home pages ═════════════════════════════
+   Compact intro band shown at the top of Learn / Projects / Team /
+   Merch. Gives each page a sense of "arrival" without repeating the
+   full viewport-sized hero on every tab. */
+
+.page-header {
+  position: relative;
+  padding: 3rem 1.5rem 2.25rem;
+  background:
+    radial-gradient(ellipse 40% 60% at 15% 0%, rgba(var(--color-primary-rgb), 0.14), transparent 60%),
+    radial-gradient(ellipse 30% 50% at 85% 0%, rgba(var(--color-accent-rgb), 0.10), transparent 60%);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, black, transparent);
+  -webkit-mask-image: linear-gradient(180deg, black, transparent);
+  pointer-events: none;
+}
+
+.page-header[hidden] { display: none; }
+
+.page-header__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.page-header__kicker {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.5rem;
+}
+.page-header__kicker:empty { display: none; }
+
+.page-header__title {
+  font-size: clamp(1.9rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+  background: linear-gradient(180deg, var(--text-primary) 0%, rgba(245, 245, 247, 0.78) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.page-header__desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 620px;
+}
+.page-header__desc:empty { display: none; }
+
+@media (max-width: 640px) {
+  .page-header {
+    padding: 2.25rem 1.25rem 1.75rem;
+  }
+}
+
+/* ══ Learning tree — tiered layers ════════════════════════════════
+   Grouping by layer (Foundations → Intermediate → Advanced) reads
+   as an actual curriculum progression instead of a flat grid. */
+
+/* When loadLearningTree emits a tiered tree, it adds this modifier
+   so we can break out of the usual content-grid auto-fill layout. */
+.content-grid--tree {
+  display: block !important;
+}
+
+.learning-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.learning-tier {
+  position: relative;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1.75rem;
+  padding-left: 1px;
+  align-items: start;
+}
+
+.learning-tier::before {
+  content: "";
+  position: absolute;
+  top: -1rem;
+  bottom: -1rem;
+  left: 179px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--border-strong), transparent);
+  opacity: 0.8;
+}
+
+.learning-tier:first-child::before {
+  top: 0.5rem;
+}
+.learning-tier:last-child::before {
+  bottom: 0.5rem;
+}
+
+@media (max-width: 720px) {
+  .learning-tier {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  .learning-tier::before { display: none; }
+}
+
+.learning-tier__label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.5rem;
+  position: sticky;
+  top: 5rem;
+}
+
+@media (max-width: 720px) {
+  .learning-tier__label {
+    position: static;
+    padding-top: 0;
+  }
+}
+
+.learning-tier__layer {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.learning-tier__name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.learning-tier--local .learning-tier__layer {
+  color: var(--color-accent);
+}
+
+.learning-tier__nodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.learning-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.95rem 1.05rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.learning-node:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  color: var(--text-primary);
+}
+
+.learning-node--local {
+  border-color: rgba(var(--color-accent-rgb), 0.3);
+  background: linear-gradient(180deg, rgba(var(--color-accent-rgb), 0.04), var(--bg-surface));
+}
+
+.learning-node__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.learning-node__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--text-tertiary);
+}
+.learning-node__dot--beginner { background: #10b981; }
+.learning-node__dot--intermediate { background: #f59e0b; }
+.learning-node__dot--advanced { background: #fb923c; }
+
+.learning-node__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+
+.learning-node__desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.learning-node__meta {
+  font-size: 0.68rem;
+  color: var(--text-tertiary);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.learning-node__time {
+  display: inline-block;
+}
+
+/* ══ Preview-edit mode — click-to-edit pills on every section ═════
+   When the site is loaded with ?preview=1&edit=1 (from the dashboard's
+   Customize tab iframe), sections get a hoverable pill pointing at
+   their editor. Clicking postMessages the parent to navigate. */
+
+.preview-edit-mode [data-section] {
+  transition: outline-color 0.15s;
+  outline: 2px dashed transparent;
+  outline-offset: -8px;
+}
+.preview-edit-mode [data-section]:hover {
+  outline-color: rgba(var(--color-primary-rgb), 0.4);
+}
+
+.edit-pill {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.4);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.15s, transform 0.15s, background 0.15s, border-color 0.15s;
+  pointer-events: auto;
+}
+
+.edit-pill:hover {
+  background: rgba(var(--color-primary-rgb), 0.18);
+  border-color: rgba(var(--color-primary-rgb), 0.6);
+}
+
+.edit-pill__icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+/* Show the pill when hovering the parent section (or when the pill
+   itself is hovered/focused, so it doesn't disappear mid-click). */
+[data-section]:hover > .edit-pill,
+.edit-pill:hover,
+.edit-pill:focus-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.edit-pill:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Hero's full-bleed glow can cover the edit pill — ensure the pill
+   sits above the glow. */
+.hero .edit-pill {
+  z-index: 50;
+  top: 1.5rem;
+}
+
+/* ══ "What we do" pillars — 4-up home page explainer ══════════════
+   Sits directly under the hero. Four tap-through tiles that each
+   point at a section on the home page (events, projects, learn,
+   badges) so a visitor landing cold can jump to whichever pillar
+   matches their interest. Reuses the same visual language as the
+   points-explainer cards below for consistency. */
+
+.section--pillars {
+  /* Slightly tighter vertical padding than default sections — the
+     pillars are intentionally light-touch, so they don't warrant
+     the full 5rem breathing room. */
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+}
+
+.pillar-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.4rem 1.4rem 1.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease,
+    background 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+}
+
+/* Hairline top edge that picks up the theme gradient — a tiny visual
+   tie back to the --color-primary/--color-accent pair without tinting
+   the whole card. Keeps the grid feeling cohesive across tiles. */
+.pillar-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--color-primary-rgb), 0.55),
+    rgba(var(--color-accent-rgb), 0.55),
+    transparent
+  );
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.pillar-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--color-primary-rgb), 0.35);
+  background: rgba(var(--color-primary-rgb), 0.04);
+  box-shadow: 0 10px 32px -12px rgba(var(--color-primary-rgb), 0.25);
+}
+
+.pillar-card:hover::before {
+  opacity: 0.95;
+}
+
+.pillar-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.pillar-card__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.pillar-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.pillar-card__desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ══ Per-page CTA bands ═══════════════════════════════════════════
+   Rendered at the bottom of the Projects / Team / Learn / Merch
+   pages by main.ts::renderPageCtaBands. Each band frames the next
+   step for that page's audience ("how to participate", "how to
+   contact us", etc.) so nobody scrolls to the end of a tab and
+   hits a dead-end footer. */
+
+.page-cta-band {
+  padding: 4rem 1.5rem 5rem;
+  position: relative;
+}
+
+.page-cta-band::before {
+  /* Soft ambient wash tying the band to the theme without making it
+     look like a separate callout card. Sits behind the content so it
+     never fights readability. */
+  content: "";
+  position: absolute;
+  inset: 2rem 1.5rem;
+  border-radius: var(--radius-xl, 24px);
+  background:
+    radial-gradient(
+      60% 100% at 15% 0%,
+      rgba(var(--color-primary-rgb), 0.08),
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 100% at 85% 100%,
+      rgba(var(--color-accent-rgb), 0.08),
+      transparent 70%
+    ),
+    var(--bg-surface);
+  border: 1px solid var(--border);
+  pointer-events: none;
+}
+
+.page-cta-band__inner {
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.page-cta-band__kicker {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.6rem;
+}
+
+.page-cta-band__title {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem;
+  line-height: 1.2;
+}
+
+.page-cta-band__desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 620px;
+  margin: 0;
+}
+
+.page-cta-band__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: stretch;
+  min-width: 180px;
+}
+
+.page-cta-band__actions .btn {
+  justify-content: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .page-cta-band {
+    padding: 2.5rem 1rem 3.5rem;
+  }
+  .page-cta-band::before {
+    inset: 1rem 0.75rem;
+  }
+  .page-cta-band__inner {
+    grid-template-columns: 1fr;
+    padding: 1.75rem 1.25rem;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .page-cta-band__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .page-cta-band__actions .btn {
+    flex: 1 1 140px;
+  }
+}
+
+/* ══ Sponsor inquiry modal ═══════════════════════════════════════
+   Opened via the `#sponsor` hash route which the hero's "Become a
+   partner" CTA defaults to. Submits to the dashboard's public
+   sponsor endpoint so inquiries land in the chapter's Inbox tab.
+   The whole thing is injected by main.ts::setupSponsorModal — so
+   this CSS is hydrate-only, nothing lives in index.html. */
+
+.sponsor-modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.sponsor-modal-root[hidden] {
+  display: none;
+}
+
+.sponsor-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 6, 9, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: sponsor-modal-fade-in 0.18s ease;
+}
+
+.sponsor-modal__panel {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl, 20px);
+  padding: 2.25rem 2rem 2rem;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.6),
+    0 12px 30px -10px rgba(var(--color-primary-rgb), 0.25);
+  animation: sponsor-modal-pop 0.22s cubic-bezier(0.3, 1, 0.4, 1);
+}
+
+@keyframes sponsor-modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sponsor-modal-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+body.sponsor-modal-open {
+  overflow: hidden;
+}
+
+.sponsor-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.sponsor-modal__close:hover {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.sponsor-modal__head {
+  margin-bottom: 1.5rem;
+  padding-right: 2rem; /* keep the title clear of the close button */
+}
+
+.sponsor-modal__kicker {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.5rem;
+}
+
+.sponsor-modal__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.sponsor-modal__desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.sponsor-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sponsor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sponsor-field--row {
+  flex-direction: row;
+  gap: 0.75rem;
+}
+
+.sponsor-field__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .sponsor-field--row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.sponsor-field__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+}
+
+.sponsor-field__input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.sponsor-field__input:focus {
+  outline: none;
+  border-color: rgba(var(--color-primary-rgb), 0.6);
+  background: rgba(var(--color-primary-rgb), 0.04);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.18);
+}
+
+.sponsor-field__textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+/* Honeypot — absolutely positioned off-screen so it's invisible to
+   real users but still present for headless form-fillers. We rely
+   on server-side enforcement; CSS here is strictly anti-collision. */
+.sponsor-field__honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.sponsor-modal__status {
+  min-height: 1.1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.sponsor-modal__status--error {
+  color: #f87171;
+}
+
+.sponsor-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.sponsor-modal__actions .btn {
+  min-width: 120px;
+  justify-content: center;
+}
+
+.sponsor-modal__submit[disabled] {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+/* ── Success view ──────────────────────────────── */
+
+.sponsor-modal__success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  text-align: center;
+  padding: 1.5rem 1rem 0.5rem;
+}
+
+.sponsor-modal__success[hidden] {
+  display: none;
+}
+
+.sponsor-modal__success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.sponsor-modal__success-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+}
+
+.sponsor-modal__success-desc {
+  margin: 0 0 0.5rem;
+  max-width: 380px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+@media (max-width: 560px) {
+  .sponsor-modal__panel {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+}
+
+/* ── Under-construction holding page ──────────────────────────────────
+   Shown in place of the whole site when the chapter's data can't be
+   loaded. Uses the site's own theme so it reads as a deliberate page
+   rather than an error, and carries no diagnostic detail — that goes to
+   the console for whoever runs the site. */
+body.is-holding {
+  display: flex;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+.holding {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.holding__inner {
+  max-width: 34rem;
+}
+
+.holding__mark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.75rem;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
+  opacity: 0.9;
+}
+
+.holding__title {
+  margin: 0 0 0.9rem;
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.holding__body {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* ── The ALL mark in the hero ────────────────────────────────────
+   Same geometry as the network's home page, carrying this chapter's
+   acronym and colours. It sits behind the hero copy, so it is sized and
+   faded to stay decoration rather than competing with the headline. */
+/* In the FLOW, above the eyebrow — not a backdrop behind the copy.
+   As an absolute watermark the university pill landed straight across the
+   mark and covered the acronym, which is the one part of it that belongs
+   to this chapter. all-ai-network.org gives its mark its own half of the
+   hero for the same reason; this is the centred equivalent. */
+.hero__mark {
+  display: flex;
+  justify-content: center;
+  margin-bottom: clamp(0.5rem, 1.8vh, 1.25rem);
+  pointer-events: none;
+  z-index: 1;
+}
+.hero__mark .bmark {
+  width: clamp(104px, 15vh, 140px);
+  height: auto;
+  opacity: 0.95;
+}
+@media (max-width: 800px) {
+  .hero__mark .bmark { width: clamp(96px, 16vh, 132px); }
+}
+
+.bmark__outline {
+  fill: rgba(0, 0, 0, 0.28);
+  stroke: url(#bmark-grad);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  opacity: 0;
+  animation: bmark-in 700ms ease forwards 0.05s;
+}
+.bmark__edge {
+  stroke: url(#bmark-grad);
+  stroke-width: 0.7;
+  opacity: 0;
+  animation: bmark-in 500ms ease forwards var(--d, 0s);
+}
+.bmark__node {
+  fill: url(#bmark-grad);
+  stroke: url(#bmark-grad);
+  stroke-width: 0.7;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bmark-pop 460ms cubic-bezier(0.2, 1.4, 0.4, 1) forwards var(--d, 0s);
+}
+.bmark__node--hollow { fill: rgba(0, 0, 0, 0.85); }
+.bmark__word {
+  fill: url(#bmark-grad);
+  font-family: inherit;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  opacity: 0;
+  animation: bmark-in 700ms ease forwards 1.1s;
+}
+
+@keyframes bmark-in { to { opacity: 1; } }
+@keyframes bmark-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* The mark is the point, not the motion. */
+.bmark--static .bmark__outline,
+.bmark--static .bmark__edge,
+.bmark--static .bmark__node,
+.bmark--static .bmark__word {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
