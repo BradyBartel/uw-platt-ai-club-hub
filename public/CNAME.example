@@ -1,0 +1,10 @@
+# Charter custom domain — disabled until ALL repoints DNS to GitHub Pages.
+#
+# When ready:
+# 1. ALL sets CNAME uw-platt-ai-club.all-ai-network.org → bradybartel.github.io
+# 2. Copy this file to public/CNAME (no .example extension) with ONLY this line:
+#
+# uw-platt-ai-club.all-ai-network.org
+#
+# 3. GitHub → Settings → Pages → Custom domain → same hostname
+# 4. Wait for DNS check → Enforce HTTPS
