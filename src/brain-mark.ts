@@ -119,6 +119,7 @@ function buildMarkSvg(
 export function renderBrainMark(
   el: Element | null,
   acronymRaw: string | null | undefined,
+  logoUrl?: string | null,
 ): void {
   if (!el) return;
 
@@ -126,6 +127,14 @@ export function renderBrainMark(
     typeof window !== "undefined" &&
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const logo = logoUrl?.trim();
+  if (logo) {
+    el.innerHTML = `<img class="bmark bmark--logo${
+      reduce ? " bmark--static" : ""
+    }" src="${escapeAttr(logo)}" alt="" decoding="async" />`;
+    return;
+  }
 
   const acronym = normalizeAcronym(acronymRaw);
   el.innerHTML = buildMarkSvg(acronym, reduce, true);

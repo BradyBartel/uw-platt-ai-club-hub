@@ -3668,9 +3668,21 @@ body.is-holding {
 .hero__mark .bmark--paic {
   width: clamp(112px, 17vh, 154px);
 }
+.hero__mark .bmark--logo {
+  width: clamp(148px, 22vh, 220px);
+  opacity: 0;
+  transform: scale(0.88);
+  animation: bmark-logo-in 900ms cubic-bezier(0.2, 1.15, 0.35, 1) forwards 0.12s;
+}
 @media (max-width: 800px) {
   .hero__mark .bmark { width: clamp(96px, 16vh, 132px); }
   .hero__mark .bmark--paic { width: clamp(104px, 17vh, 140px); }
+  .hero__mark .bmark--logo { width: clamp(132px, 24vh, 200px); }
+}
+
+@keyframes bmark-logo-in {
+  from { opacity: 0; transform: scale(0.88); }
+  to { opacity: 0.95; transform: scale(1); }
 }
 
 .bmark__outline {
@@ -3769,6 +3781,12 @@ body.is-holding {
 }
 
 /* The mark is the point, not the motion. */
+.bmark--static.bmark--logo {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+.bmark--static.bmark--logo,
 .bmark--static .bmark__outline,
 .bmark--static .bmark__edge,
 .bmark--static .bmark__node,
