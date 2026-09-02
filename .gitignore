@@ -5,5 +5,10 @@ dist/
 .env
 .env.*
 
+# UX probe captures (local QA only)
+scripts/ux-captures/
+scripts/paic-*.png
+scripts/paic-*.svg
+
 # Vercel (hosted deployment link — local only)
 .vercel

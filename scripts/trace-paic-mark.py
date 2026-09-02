@@ -20,7 +20,11 @@ SIZE = 100
 MAX_NODES = 24
 MIN_SEG_LEN = 3.5
 
-EXCLUDE = ((50.0, 44.0, 15.0, 6.0),)
+EXCLUDE = (
+    (50.0, 44.0, 15.0, 6.0),  # PAIC wordmark
+    (50.0, 84.0, 11.0, 9.0),  # varsity M
+    (76.0, 50.0, 7.0, 11.0),  # varsity P
+)
 
 
 def load_line_mask() -> np.ndarray:
@@ -41,7 +45,8 @@ def load_line_mask() -> np.ndarray:
     yy, xx = np.mgrid[0:SIZE, 0:SIZE]
     for cx, cy, rx, ry in EXCLUDE:
         mask &= ~(((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2 <= 1.0)
-    return skeletonize(ndimage.binary_opening(mask, iterations=1))
+    opened = ndimage.binary_opening(mask, iterations=1)
+    return skeletonize(opened)
 
 
 def neighbors(y: int, x: int, skel: np.ndarray) -> list[tuple[int, int]]:

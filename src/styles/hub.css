@@ -3710,6 +3710,34 @@ body.is-holding {
   fill: rgba(0, 0, 0, 0.28);
 }
 
+.bmark--paic .bmark__logo {
+  opacity: 0;
+  transform: scale(0.97);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bmark-lock 600ms cubic-bezier(0.2, 0.9, 0.3, 1) forwards var(--lock, 1.78s);
+}
+
+.bmark--paic .bmark__wire {
+  opacity: 1;
+  animation: bmark-wire-out 500ms ease forwards var(--lock, 1.78s);
+}
+
+@keyframes bmark-lock {
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes bmark-wire-out { to { opacity: 0; } }
+
+.bmark--paic.bmark--static .bmark__logo {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+.bmark--paic.bmark--static .bmark__wire {
+  display: none;
+}
+
 .bmark--paic .bmark__edge {
   opacity: 1;
   stroke-width: 0.7;

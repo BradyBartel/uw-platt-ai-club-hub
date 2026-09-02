@@ -10,8 +10,8 @@ import path from "node:path";
 const OUT = path.resolve("scripts/ux-captures");
 const SITES = [
   {
-    name: "paic",
-    url: "http://127.0.0.1:4176/",
+    name: "paic-live",
+    url: "https://bradybartel.github.io/uw-platt-ai-club-hub/",
     selector: ".hero__mark .bmark--paic",
   },
   {
@@ -31,9 +31,13 @@ async function captureSite(page, site) {
   await mkdir(dir, { recursive: true });
 
   for (const ms of FRAMES_MS) {
+    await page.goto(site.url, { waitUntil: "networkidle" });
+    await page.waitForSelector(site.selector, { timeout: 30000 });
     if (ms > 0) await page.waitForTimeout(ms);
     const mark = page.locator(site.selector);
-    await mark.screenshot({ path: path.join(dir, `frame-${String(ms).padStart(4, "0")}ms.png`) });
+    await mark.screenshot({
+      path: path.join(dir, `frame-${String(ms).padStart(4, "0")}ms.png`),
+    });
   }
 
   const edgeStyle = await page.evaluate((sel) => {
