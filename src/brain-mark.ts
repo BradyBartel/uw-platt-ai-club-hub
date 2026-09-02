@@ -48,28 +48,8 @@ const EDGES: Array<[number, number]> = [
   [0, 1], [0, 2], [0, 5], [0, 21], [1, 5], [1, 7], [2, 5], [2, 20], [4, 6], [4, 9], [4, 20], [4, 21], [5, 7], [5, 10], [6, 8], [6, 9], [6, 11], [6, 20], [7, 10], [7, 14], [8, 19], [9, 12], [10, 14], [11, 12], [11, 14], [11, 17], [11, 19], [12, 16], [12, 18], [12, 19], [14, 17], [15, 16], [15, 17], [15, 18], [15, 19], [16, 18], [16, 19], [20, 21],
 ];
 
-/** Optically centred in the mark.
- *
- *  Only the X moved. The original art's height (42.61) is where a designer
- *  put "ALL", and the brain is genuinely top-heavy — it widens at the top
- *  and narrows to a stem, so its visual mass sits well above the middle of
- *  its own bounding box (area centroid 45.25 vs bbox centre 49.79). Moving
- *  the wordmark down to the bbox centre made it read as too low. The
- *  original X (46.69) is what looked off, because the eye centres text
- *  against the SQUARE, so that is the only value changed.
- *
- *  This first used the original "ALL" word position (46.69, 42.61), which
- *  is right for the full logo's composition but reads as misaligned once
- *  the mark is a small square icon — the eye centres text against the
- *  SQUARE, and that position is 3.2 units left and 7.2 units high of the
- *  silhouette's centre (bbox 49.89, 49.79). The half-unit down is the usual
- *  nudge for all-caps text, which has no descenders and otherwise sits
- *  visually high. */
 const WORD_X = 50;
 const WORD_Y = 42.61;
-/* The clear band between the two big inner nodes (x 28.7 r 4.8 on the left,
- * x 69.9 on the right). Centring the wordmark without narrowing it ran the
- * first letter straight into that left node. */
 const WORD_SPAN = 30;
 
 function escapeXml(v: string): string {
@@ -87,6 +67,46 @@ function escapeAttr(v: string): string {
 export function normalizeAcronym(raw: string | null | undefined): string {
   const s = (raw ?? "").trim().toUpperCase().replace(/\s+/g, "");
   return s.slice(0, 5) || "ALL";
+}
+
+function buildMarkSvg(
+  acronym: string,
+  reduce: boolean,
+  showWord: boolean,
+): string {
+  const fontSize =
+    Math.round((WORD_SPAN / (0.85 * acronym.length)) * 10) / 10;
+
+  const edges = EDGES.map(([a, b], i) => {
+    const [x1, y1] = NODES[a];
+    const [x2, y2] = NODES[b];
+    const delay = reduce ? 0 : 0.35 + i * 0.022;
+    return `<line class="bmark__edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="--d:${delay}s" />`;
+  }).join("");
+
+  const nodes = NODES.map(([x, y, r, hollow], i) => {
+    const delay = reduce ? 0 : 0.15 + i * 0.03;
+    return `<circle class="bmark__node${hollow ? " bmark__node--hollow" : ""}" cx="${x}" cy="${y}" r="${r}" style="--d:${delay}s" />`;
+  }).join("");
+
+  const word = showWord
+    ? `<text class="bmark__word" x="${WORD_X}" y="${WORD_Y}" text-anchor="middle"
+        dominant-baseline="central" font-size="${fontSize}">${escapeXml(acronym)}</text>`
+    : "";
+
+  return `
+<svg class="bmark${reduce ? " bmark--static" : ""}" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="bmark-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--color-primary, #22d3ee)" />
+      <stop offset="100%" stop-color="var(--color-accent, #c026d3)" />
+    </linearGradient>
+  </defs>
+  <polygon class="bmark__outline" points="${OUTLINE}" />
+  <g class="bmark__edges">${edges}</g>
+  <g class="bmark__nodes">${nodes}</g>
+  ${word}
+</svg>`;
 }
 
 /**
@@ -108,48 +128,21 @@ export function renderBrainMark(
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  const acronym = normalizeAcronym(acronymRaw);
   const logo = logoUrl?.trim();
+
   if (logo) {
-    // Raster chapter art can't stroke-draw like the SVG mesh, but we match
-    // the same assemble cadence: faint growth through the edge/node window,
-    // then the full mark lands on the wordmark beat (~1.1s).
-    el.innerHTML = `<img class="bmark bmark--art${
-      reduce ? " bmark--static" : ""
-    }" src="${escapeAttr(logo)}" alt="" decoding="async" />`;
+    // Lines assemble first; the chapter logo lands on the wordmark beat.
+    el.innerHTML = `<div class="bmark-composite${
+      reduce ? " bmark-composite--static" : ""
+    }">
+      ${buildMarkSvg(acronym, reduce, false)}
+      <img class="bmark bmark--art bmark--art-reveal${
+        reduce ? " bmark--static" : ""
+      }" src="${escapeAttr(logo)}" alt="" decoding="async" />
+    </div>`;
     return;
   }
 
-  const acronym = normalizeAcronym(acronymRaw);
-
-  // Widest-glyph sizing: bold caps run from ~0.31em (I) to ~0.85em (W, M),
-  // so sizing by character COUNT overflows on a wide acronym.
-  const fontSize =
-    Math.round((WORD_SPAN / (0.85 * acronym.length)) * 10) / 10;
-
-  const edges = EDGES.map(([a, b], i) => {
-    const [x1, y1] = NODES[a];
-    const [x2, y2] = NODES[b];
-    const delay = reduce ? 0 : 0.35 + i * 0.022;
-    return `<line class="bmark__edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="--d:${delay}s" />`;
-  }).join("");
-
-  const nodes = NODES.map(([x, y, r, hollow], i) => {
-    const delay = reduce ? 0 : 0.15 + i * 0.03;
-    return `<circle class="bmark__node${hollow ? " bmark__node--hollow" : ""}" cx="${x}" cy="${y}" r="${r}" style="--d:${delay}s" />`;
-  }).join("");
-
-  el.innerHTML = `
-<svg class="bmark${reduce ? " bmark--static" : ""}" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-  <defs>
-    <linearGradient id="bmark-grad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="var(--color-primary, #22d3ee)" />
-      <stop offset="100%" stop-color="var(--color-accent, #c026d3)" />
-    </linearGradient>
-  </defs>
-  <polygon class="bmark__outline" points="${OUTLINE}" />
-  <g class="bmark__edges">${edges}</g>
-  <g class="bmark__nodes">${nodes}</g>
-  <text class="bmark__word" x="${WORD_X}" y="${WORD_Y}" text-anchor="middle"
-        dominant-baseline="central" font-size="${fontSize}">${escapeXml(acronym)}</text>
-</svg>`;
+  el.innerHTML = buildMarkSvg(acronym, reduce, true);
 }
