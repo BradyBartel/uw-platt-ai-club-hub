@@ -3687,6 +3687,49 @@ body.is-holding {
   animation: bmark-in 700ms ease forwards 1.1s;
 }
 
+.bmark--paic .bmark__edge {
+  opacity: 1;
+  stroke-dasharray: var(--len, 12);
+  stroke-dashoffset: var(--len, 12);
+  animation: bmark-draw 520ms ease forwards var(--d, 0s);
+}
+
+@keyframes bmark-draw { to { stroke-dashoffset: 0; } }
+
+.bmark--paic.bmark--static .bmark__edge {
+  stroke-dashoffset: 0;
+}
+
+.bmark--paic .bmark__outline {
+  fill: rgba(0, 0, 0, 0.42);
+}
+
+.bmark__detail {
+  fill: none;
+  stroke: url(#bmark-grad);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  animation: bmark-in 650ms ease forwards var(--d, 1.1s);
+}
+.bmark__detail--gear {
+  fill: none;
+  stroke-width: 0.85;
+}
+.bmark__detail--mountain {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: url(#bmark-grad);
+  stroke-width: 0.6;
+}
+.bmark__detail--m,
+.bmark__detail--p {
+  fill: url(#bmark-grad-warm);
+  stroke: none;
+  opacity: 0;
+  animation: bmark-in 700ms ease forwards var(--d, 1.2s);
+}
+
 @keyframes bmark-in { to { opacity: 1; } }
 @keyframes bmark-pop {
   from { opacity: 0; transform: scale(0.4); }
@@ -3697,7 +3740,8 @@ body.is-holding {
 .bmark--static .bmark__outline,
 .bmark--static .bmark__edge,
 .bmark--static .bmark__node,
-.bmark--static .bmark__word {
+.bmark--static .bmark__word,
+.bmark--static .bmark__detail {
   animation: none;
   opacity: 0.95;
   transform: none;

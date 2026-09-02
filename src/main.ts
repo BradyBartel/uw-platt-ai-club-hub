@@ -11,7 +11,7 @@
  * propagate to every hub site on next page load; no rebuild needed.
  */
 
-import { renderBrainMark } from "./brain-mark";
+import { renderPaicMark } from "./paic-mark";
 
 declare const __HUB_CONFIG__: HubConfig;
 
@@ -2994,10 +2994,7 @@ async function init() {
   renderHeroNetwork();
   // The chapter's own mark, in its colours. Acronym falls back through the
   // live config, then the baked one, then "ALL".
-  renderBrainMark(
-    document.getElementById("hero-mark"),
-    remote?.hub_acronym ?? config.hub_acronym ?? null,
-  );
+  renderPaicMark(document.getElementById("hero-mark"));
 
   // Learning tree iframes the content repo's tree page — fire-and-
   // forget since the iframe handles its own load / timeout states.
