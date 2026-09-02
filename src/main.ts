@@ -476,6 +476,46 @@ function bundledLogoPath(): string | null {
   return config.logo_url ? "./paic-logo.png" : null;
 }
 
+/** Local PAIC art in the repo, else the logo URL the dashboard uploaded. */
+function resolveChapterLogoUrl(remote: RemoteConfig | null): string | null {
+  const bundled = bundledLogoPath();
+  if (bundled) return bundled;
+  const remoteUrl = remote?.logo_url?.trim();
+  return remoteUrl && remoteUrl.length > 0 ? remoteUrl : null;
+}
+
+function upsertHeadLink(
+  rel: string,
+  href: string,
+  type?: string,
+  sizes?: string,
+) {
+  const selector = sizes
+    ? `link[rel="${rel}"][sizes="${sizes}"]`
+    : `link[rel="${rel}"]`;
+  let link = document.querySelector<HTMLLinkElement>(selector);
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = rel;
+    if (sizes) link.sizes = sizes;
+    document.head.appendChild(link);
+  }
+  link.href = href;
+  if (type) link.type = type;
+}
+
+function applyFavicon() {
+  // Square crops ship in public/ — the full PAIC mark is too busy at 16px.
+  upsertHeadLink("icon", "./favicon-32.png", "image/png", "32x32");
+  upsertHeadLink("icon", "./favicon.ico", "image/x-icon");
+  upsertHeadLink(
+    "apple-touch-icon",
+    "./apple-touch-icon.png",
+    "image/png",
+    "180x180",
+  );
+}
+
 function applyLogo(logoUrl: string | null) {
   for (const id of ["nav-logo-img", "footer-logo-img"]) {
     const img = document.getElementById(id) as HTMLImageElement | null;
@@ -2905,8 +2945,10 @@ async function init() {
   if (isPreview && params && params.get("logo") !== null) {
     const logoParam = params.get("logo");
     applyLogo(logoParam && logoParam.length > 0 ? logoParam : null);
+    applyFavicon();
   } else {
-    applyLogo(bundledLogoPath() ?? remote?.logo_url ?? null);
+    applyLogo(resolveChapterLogoUrl(remote));
+    applyFavicon();
   }
 
   // Section visibility: start from saved + fold in preview `off=` list.
@@ -2955,7 +2997,7 @@ async function init() {
   renderBrainMark(
     document.getElementById("hero-mark"),
     remote?.hub_acronym ?? config.hub_acronym ?? null,
-    bundledLogoPath(),
+    resolveChapterLogoUrl(remote),
   );
 
   // Learning tree iframes the content repo's tree page — fire-and-
