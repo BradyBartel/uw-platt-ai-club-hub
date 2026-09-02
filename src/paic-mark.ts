@@ -1,8 +1,8 @@
 /**
- * paic-mark.ts — PAIC hero mark from public/paic-logo.png.
+ * paic-mark.ts — PAIC hero mark (brain-mark animation, PAIC geometry).
  *
- * Mesh traced by scripts/trace-paic-mark.py. Lines draw in like the ALL
- * charter mark, then the real logo locks in on top.
+ * Same motion as brain-mark.ts: outline → edges draw in → nodes pop →
+ * wordmark → logo details. Geometry from scripts/trace-paic-mark.py.
  */
 
 import {
@@ -13,15 +13,27 @@ import {
   PAIC_WORD_POS,
 } from "./paic-mark-data";
 
-const LOGO_SRC = "./paic-logo.png";
-const WORD_SPAN = 28;
+/** [path d, class] — gear, mountain, varsity M/P fade in after mesh. */
+const DETAILS: ReadonlyArray<readonly [string, string]> = [
+  [
+    "M14.5 16a2.1 2.1 0 1 0 0 4.2 2.1 2.1 0 0 0 0-4.2zm0-2.6v1.3m0 7.8v1.3m-5.2-5.2h1.3m7.8 0h1.3m-1-4.5-.8.9m-4 4-.8.9m0-5.8.8.9m4 4 .8.9",
+    "bmark__detail--gear",
+  ],
+  [
+    "M43.5 78.5L50 70.5l6.5 8H43.5zm5-5.5c.7 1.1 1.4 1.1 2.1 0",
+    "bmark__detail--mountain",
+  ],
+  [
+    "M41 91V79h4l3 7 3-7h4v12h-4v-7l-3 6.5-3-6.5v7H41z",
+    "bmark__detail--m",
+  ],
+  [
+    "M74.5 43.5v14.5h4.8c4.2 0 6.8-2.3 6.8-6.1s-2.6-6.1-6.8-6.1h-4.8zm2.4-9.8v4.2h2.4c2 0 3.1-1 3.1-2.5s-1.1-2.5-3.1-2.5h-2.4zm0 6.2v5.6h2.6c2.2 0 3.4-1.1 3.4-2.7s-1.2-2.7-3.4-2.7h-2.6z",
+    "bmark__detail--p",
+  ],
+] as const;
 
-/** After the last edge finishes drawing, pause briefly, then lock logo. */
-const EDGE_DRAW_MS = 500;
-const EDGE_STAGGER_S = 0.022;
-const EDGE_START_S = 0.35;
-const LOCK_DELAY_S =
-  EDGE_START_S + (PAIC_EDGES.length - 1) * EDGE_STAGGER_S + EDGE_DRAW_MS / 1000 + 0.12;
+const WORD_SPAN = 28;
 
 function escapeXml(v: string): string {
   return v
@@ -36,13 +48,11 @@ function buildPaicMarkSvg(reduce: boolean): string {
   const [wordX, wordY] = PAIC_WORD_POS;
   const fontSize =
     Math.round((WORD_SPAN / (0.85 * PAIC_WORD.length)) * 10) / 10;
-  const lockDelay = reduce ? 0 : LOCK_DELAY_S;
-  const lockStyle = `--lock:${lockDelay}s`;
 
   const edges = PAIC_EDGES.map(([a, b], i) => {
     const [x1, y1] = PAIC_NODES[a];
     const [x2, y2] = PAIC_NODES[b];
-    const delay = reduce ? 0 : EDGE_START_S + i * EDGE_STAGGER_S;
+    const delay = reduce ? 0 : 0.35 + i * 0.022;
     const len = Math.hypot(x2 - x1, y2 - y1).toFixed(2);
     return `<line class="bmark__edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="--d:${delay}s;--len:${len}" />`;
   }).join("");
@@ -52,10 +62,13 @@ function buildPaicMarkSvg(reduce: boolean): string {
     return `<circle class="bmark__node${hollow ? " bmark__node--hollow" : ""}" cx="${x}" cy="${y}" r="${r}" style="--d:${delay}s" />`;
   }).join("");
 
+  const details = DETAILS.map(([d, cls], i) => {
+    const delay = reduce ? 0 : 1.05 + i * 0.08;
+    return `<path class="bmark__detail ${cls}" d="${d}" style="--d:${delay}s" />`;
+  }).join("");
+
   const word = `<text class="bmark__word" x="${wordX}" y="${wordY}" text-anchor="middle"
       dominant-baseline="central" font-size="${fontSize}">${escapeXml(PAIC_WORD)}</text>`;
-
-  const logo = `<image class="bmark__logo" href="${LOGO_SRC}" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid meet" style="${lockStyle}" />`;
 
   return `
 <svg class="bmark bmark--paic${reduce ? " bmark--static" : ""}" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
@@ -65,14 +78,16 @@ function buildPaicMarkSvg(reduce: boolean): string {
       <stop offset="55%" stop-color="var(--color-primary, #1A64B7)" />
       <stop offset="100%" stop-color="var(--color-accent, #F58113)" />
     </linearGradient>
+    <linearGradient id="bmark-grad-warm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--color-accent, #F58113)" />
+      <stop offset="100%" stop-color="var(--color-accent, #F58113)" />
+    </linearGradient>
   </defs>
-  <g class="bmark__wire" style="${lockStyle}">
-    <polygon class="bmark__outline" points="${outline}" />
-    <g class="bmark__edges">${edges}</g>
-    <g class="bmark__nodes">${nodes}</g>
-    ${word}
-  </g>
-  ${logo}
+  <polygon class="bmark__outline" points="${outline}" />
+  <g class="bmark__edges">${edges}</g>
+  <g class="bmark__nodes">${nodes}</g>
+  ${word}
+  <g class="bmark__details">${details}</g>
 </svg>`;
 }
 
