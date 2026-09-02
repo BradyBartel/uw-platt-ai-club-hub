@@ -3702,6 +3702,13 @@ body.is-holding {
 
 .bmark--paic .bmark__outline {
   fill: rgba(0, 0, 0, 0.42);
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: bmark-draw 900ms ease forwards 0.05s;
+}
+
+.bmark--paic.bmark--static .bmark__outline {
+  stroke-dashoffset: 0;
 }
 
 .bmark__detail {
@@ -3725,7 +3732,9 @@ body.is-holding {
 .bmark__detail--m,
 .bmark__detail--p {
   fill: url(#bmark-grad-warm);
-  stroke: none;
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 0.45;
+  paint-order: stroke fill;
   opacity: 0;
   animation: bmark-in 700ms ease forwards var(--d, 1.2s);
 }
