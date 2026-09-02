@@ -80,6 +80,10 @@ function escapeXml(v: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function escapeAttr(v: string): string {
+  return escapeXml(v);
+}
+
 export function normalizeAcronym(raw: string | null | undefined): string {
   const s = (raw ?? "").trim().toUpperCase().replace(/\s+/g, "");
   return s.slice(0, 5) || "ALL";
@@ -95,19 +99,29 @@ export function normalizeAcronym(raw: string | null | undefined): string {
 export function renderBrainMark(
   el: Element | null,
   acronymRaw: string | null | undefined,
+  logoUrl?: string | null,
 ): void {
   if (!el) return;
+
+  const reduce =
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const logo = logoUrl?.trim();
+  if (logo) {
+    el.innerHTML = `<img class="bmark bmark--logo${
+      reduce ? " bmark--static" : ""
+    }" src="${escapeAttr(logo)}" alt="" decoding="async" />`;
+    return;
+  }
+
   const acronym = normalizeAcronym(acronymRaw);
 
   // Widest-glyph sizing: bold caps run from ~0.31em (I) to ~0.85em (W, M),
   // so sizing by character COUNT overflows on a wide acronym.
   const fontSize =
     Math.round((WORD_SPAN / (0.85 * acronym.length)) * 10) / 10;
-
-  const reduce =
-    typeof window !== "undefined" &&
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const edges = EDGES.map(([a, b], i) => {
     const [x1, y1] = NODES[a];

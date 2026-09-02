@@ -2946,6 +2946,7 @@ async function init() {
   renderBrainMark(
     document.getElementById("hero-mark"),
     remote?.hub_acronym ?? config.hub_acronym ?? null,
+    bundledLogoPath(),
   );
 
   // Learning tree iframes the content repo's tree page — fire-and-
