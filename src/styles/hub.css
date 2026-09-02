@@ -3615,20 +3615,26 @@ body.is-holding {
   height: auto;
   opacity: 0.95;
 }
-.hero__mark .bmark--logo {
-  width: clamp(148px, 22vh, 220px);
+/* Chapter logo art — timed to mirror the SVG mark's assemble beats. */
+.hero__mark .bmark--art {
+  width: clamp(156px, 24vh, 232px);
   opacity: 0;
-  transform: scale(0.88);
-  animation: bmark-logo-in 900ms cubic-bezier(0.2, 1.15, 0.35, 1) forwards 0.12s;
+  transform: scale(0.42);
+  transform-origin: center;
+  animation: bmark-assemble 1.85s cubic-bezier(0.22, 1.05, 0.36, 1) forwards 0.05s;
 }
 @media (max-width: 800px) {
   .hero__mark .bmark { width: clamp(96px, 16vh, 132px); }
-  .hero__mark .bmark--logo { width: clamp(132px, 24vh, 200px); }
+  .hero__mark .bmark--art { width: clamp(140px, 26vh, 208px); }
 }
 
-@keyframes bmark-logo-in {
-  from { opacity: 0; transform: scale(0.88); }
-  to { opacity: 0.95; transform: scale(1); }
+/* Outline → edges → nodes → wordmark (see brain-mark.ts). */
+@keyframes bmark-assemble {
+  0% { opacity: 0; transform: scale(0.42); }
+  18% { opacity: 0.22; transform: scale(0.56); }
+  42% { opacity: 0.52; transform: scale(0.76); }
+  68% { opacity: 0.78; transform: scale(0.9); }
+  100% { opacity: 0.95; transform: scale(1); }
 }
 
 .bmark__outline {
@@ -3675,8 +3681,8 @@ body.is-holding {
 .bmark--static .bmark__edge,
 .bmark--static .bmark__node,
 .bmark--static .bmark__word,
-.bmark--static.bmark--logo {
+.bmark--static.bmark--art {
   animation: none;
-  opacity: 1;
+  opacity: 0.95;
   transform: none;
 }

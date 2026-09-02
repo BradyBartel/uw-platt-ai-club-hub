@@ -110,7 +110,10 @@ export function renderBrainMark(
 
   const logo = logoUrl?.trim();
   if (logo) {
-    el.innerHTML = `<img class="bmark bmark--logo${
+    // Raster chapter art can't stroke-draw like the SVG mesh, but we match
+    // the same assemble cadence: faint growth through the edge/node window,
+    // then the full mark lands on the wordmark beat (~1.1s).
+    el.innerHTML = `<img class="bmark bmark--art${
       reduce ? " bmark--static" : ""
     }" src="${escapeAttr(logo)}" alt="" decoding="async" />`;
     return;
