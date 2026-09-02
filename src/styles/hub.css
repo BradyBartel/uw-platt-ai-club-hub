@@ -3421,6 +3421,21 @@ body.sponsor-modal-open {
   line-height: 1.55;
 }
 
+.sponsor-modal__fund {
+  margin: 0.75rem 0 0;
+  font-size: 0.88rem;
+}
+
+.sponsor-modal__fund a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sponsor-modal__fund a:hover {
+  text-decoration: underline;
+}
+
 .sponsor-modal__form {
   display: flex;
   flex-direction: column;

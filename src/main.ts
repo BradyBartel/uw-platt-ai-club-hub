@@ -16,6 +16,13 @@ import { renderPaicMark } from "./paic-mark";
 declare const __HUB_CONFIG__: HubConfig;
 
 const DASHBOARD_ORIGIN = "https://dashboard.all-ai-network.org";
+const SPONSORS_ORIGIN = "https://sponsors.all-ai-network.org";
+
+function chapterSponsorsUrl(slug: string): string | null {
+  const s = slug.trim().toLowerCase();
+  if (!s) return null;
+  return `${SPONSORS_ORIGIN}/chapters/${encodeURIComponent(s)}`;
+}
 
 /* ──────────────────────────────────────────────────────────────────
    Page structure — fixed for v1. Each section's data-page attribute
@@ -602,6 +609,7 @@ function renderIdentity(
 function renderHeroActions(
   remote: RemoteConfig | null,
   upcomingEventCount = 0,
+  chapterSlug = "",
 ) {
   const container = document.getElementById("hero-actions");
   if (!container) return;
@@ -646,6 +654,7 @@ function renderHeroActions(
   // persistent inquiry storage "for free" — surviving eboard
   // turnover, unlike a per-officer mailto. Eboards who prefer a
   // raw mailto can override via Customize → Hero CTAs.
+  const sponsorsUrl = chapterSponsorsUrl(chapterSlug);
   const buttons: HeroCta[] = [
     // 1 — prospective members
     pick(
@@ -659,8 +668,8 @@ function renderHeroActions(
     pick(
       remote?.cta_secondary_label,
       remote?.cta_secondary_href,
-      "Become a partner",
-      "#sponsor",
+      sponsorsUrl ? "Support PAIC" : "Become a partner",
+      sponsorsUrl ?? "#sponsor",
       "ghost",
     ),
     // 3 — curious learners
@@ -806,14 +815,21 @@ const PAGE_CTA_BANDS: Record<string, PageCtaBandCopy> = {
   },
 };
 
-function renderPageCtaBands() {
+function renderPageCtaBands(chapterSlug = "") {
+  const sponsorsUrl = chapterSponsorsUrl(chapterSlug);
   for (const [pageKey, copy] of Object.entries(PAGE_CTA_BANDS)) {
+    let primary = copy.primary;
+    let secondary = copy.secondary;
+    if (pageKey === "team" && sponsorsUrl) {
+      primary = { label: "Support PAIC", href: sponsorsUrl };
+      secondary = { label: "Send an inquiry", href: "#sponsor" };
+    }
     const band = document.querySelector<HTMLElement>(
       `.page-cta-band[data-page="${pageKey}"]`,
     );
     if (!band) continue;
-    const secondaryHtml = copy.secondary
-      ? `<a class="btn btn--ghost" href="${escapeAttr(copy.secondary.href)}">${escapeHtml(copy.secondary.label)}</a>`
+    const secondaryHtml = secondary
+      ? `<a class="btn btn--ghost" href="${escapeAttr(secondary.href)}"${/^https?:\/\//.test(secondary.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(secondary.label)}</a>`
       : "";
     band.innerHTML = `
       <div class="page-cta-band__inner">
@@ -823,12 +839,26 @@ function renderPageCtaBands() {
           <p class="page-cta-band__desc">${escapeHtml(copy.desc)}</p>
         </div>
         <div class="page-cta-band__actions">
-          <a class="btn btn--primary" href="${escapeAttr(copy.primary.href)}">${escapeHtml(copy.primary.label)}</a>
+          <a class="btn btn--primary" href="${escapeAttr(primary.href)}"${/^https?:\/\//.test(primary.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(primary.label)}</a>
           ${secondaryHtml}
         </div>
       </div>
     `;
   }
+}
+
+function renderFooterFundingLink(chapterSlug: string) {
+  const link = document.getElementById(
+    "footer-funding-link",
+  ) as HTMLAnchorElement | null;
+  if (!link) return;
+  const url = chapterSponsorsUrl(chapterSlug);
+  if (!url) {
+    link.hidden = true;
+    return;
+  }
+  link.href = url;
+  link.hidden = false;
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -873,6 +903,11 @@ function setupSponsorModal(
     fallbackEmail: remote?.social_links?.email ?? null,
   };
 
+  const sponsorsUrl = chapterSponsorsUrl(slug);
+  const fundingLink = sponsorsUrl
+    ? `<p class="sponsor-modal__fund"><a href="${escapeAttr(sponsorsUrl)}" target="_blank" rel="noopener noreferrer">Give directly (tax-deductible) &rarr;</a></p>`
+    : "";
+
   const root = document.createElement("div");
   root.id = "sponsor-modal-root";
   root.className = "sponsor-modal-root";
@@ -904,6 +939,7 @@ function setupSponsorModal(
           something else. Your note lands directly in the eboard's inbox —
           they'll get back within a few days.
         </p>
+        ${fundingLink}
       </div>
       <form class="sponsor-modal__form" novalidate>
         <div class="sponsor-field">
@@ -2968,13 +3004,13 @@ async function init() {
   // when unresolved). Same pipeline for both preview and normal mode
   // now — the difference is only in which overrides were layered above.
   renderIdentity(remote, bundle?.chapter ?? null);
-  renderHeroActions(remote, bundle?.events?.length ?? 0);
+  renderHeroActions(remote, bundle?.events?.length ?? 0, configuredSlug);
   renderPillars();
-  renderPageCtaBands();
-  // Sponsor inquiry modal — mounted once; triggered via the
-  // `#sponsor` hash route which the hero's partner CTA points to.
-  // Always the configured chapter, never the preview slug: a diverted
-  // sponsor lead is the part of finding 6 that costs real money.
+  renderPageCtaBands(configuredSlug);
+  renderFooterFundingLink(configuredSlug);
+  // Sponsor inquiry modal — mounted once; triggered via `#sponsor`
+  // (Team page CTA + deep links). Hero "Support PAIC" goes to the
+  // chapter funding page on sponsors.all-ai-network.org.
   setupSponsorModal(
     configuredSlug || null,
     bundle?.chapter?.name ?? remote?.hub_name ?? config.hub_name,
