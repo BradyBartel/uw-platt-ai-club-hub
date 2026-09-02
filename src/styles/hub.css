@@ -3710,34 +3710,42 @@ body.is-holding {
   display: block;
 }
 
-.paic-mask__line {
-  stroke-dasharray: var(--len, 10);
-  stroke-dashoffset: var(--len, 10);
-  animation: paic-mask-draw 460ms ease forwards var(--d, 0s);
+.paic-mesh__overlay {
+  pointer-events: none;
+  animation: paic-mesh-dissolve 700ms ease forwards 1.25s;
 }
 
-.paic-mask__node {
+.paic-mesh__line {
+  fill: none;
+  stroke: url(#paic-mesh-grad);
+  stroke-width: 0.85;
+  stroke-linecap: round;
+  stroke-dasharray: var(--len, 10);
+  stroke-dashoffset: var(--len, 10);
+  animation: paic-mesh-draw 440ms ease forwards var(--d, 0s);
+}
+
+.paic-mesh__node {
+  fill: url(#paic-mesh-grad);
+  stroke: none;
   transform-box: fill-box;
   transform-origin: center;
   transform: scale(0);
-  animation: paic-mask-pop 400ms cubic-bezier(0.2, 1.35, 0.35, 1) forwards var(--d, 0.5s);
+  animation: paic-mesh-pop 380ms cubic-bezier(0.2, 1.35, 0.35, 1) forwards var(--d, 0.45s);
 }
 
-.paic-mask__fill {
-  opacity: 0;
-  animation: paic-mask-fill 500ms ease forwards 1.0s;
-}
-
-@keyframes paic-mask-draw { to { stroke-dashoffset: 0; } }
-@keyframes paic-mask-pop {
+@keyframes paic-mesh-draw { to { stroke-dashoffset: 0; } }
+@keyframes paic-mesh-pop {
   from { transform: scale(0); }
   to { transform: scale(1); }
 }
-@keyframes paic-mask-fill { to { opacity: 1; } }
+@keyframes paic-mesh-dissolve {
+  to { opacity: 0; }
+}
 
-.bmark--paic.bmark--static .paic-mask__line { stroke-dashoffset: 0; animation: none; }
-.bmark--paic.bmark--static .paic-mask__node { transform: scale(1); animation: none; }
-.bmark--paic.bmark--static .paic-mask__fill { opacity: 1; animation: none; }
+.bmark--paic.bmark--static .paic-mesh__overlay {
+  display: none;
+}
 
 .bmark--paic .bmark__edge {
   opacity: 1;
