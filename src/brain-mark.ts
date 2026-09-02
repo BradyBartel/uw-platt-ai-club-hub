@@ -119,7 +119,6 @@ function buildMarkSvg(
 export function renderBrainMark(
   el: Element | null,
   acronymRaw: string | null | undefined,
-  logoUrl?: string | null,
 ): void {
   if (!el) return;
 
@@ -129,20 +128,5 @@ export function renderBrainMark(
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const acronym = normalizeAcronym(acronymRaw);
-  const logo = logoUrl?.trim();
-
-  if (logo) {
-    // Lines assemble first; the chapter logo lands on the wordmark beat.
-    el.innerHTML = `<div class="bmark-composite${
-      reduce ? " bmark-composite--static" : ""
-    }">
-      ${buildMarkSvg(acronym, reduce, false)}
-      <img class="bmark bmark--art bmark--art-reveal${
-        reduce ? " bmark--static" : ""
-      }" src="${escapeAttr(logo)}" alt="" decoding="async" />
-    </div>`;
-    return;
-  }
-
   el.innerHTML = buildMarkSvg(acronym, reduce, true);
 }
