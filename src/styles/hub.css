@@ -255,24 +255,42 @@ code {
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  border: none;
   color: white;
-  box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.3);
+  background-color: var(--color-primary);
+  background-image: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    color-mix(in srgb, var(--color-primary) 28%, var(--color-accent)) 55%,
+    var(--color-accent) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 18px rgba(var(--color-primary-rgb), 0.32);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 .btn--primary:hover {
   transform: translateY(-1px);
   color: white;
-  box-shadow: 0 6px 24px rgba(var(--color-primary-rgb), 0.4);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 90%, white) 0%,
+    color-mix(in srgb, var(--color-primary) 28%, var(--color-accent)) 55%,
+    color-mix(in srgb, var(--color-accent) 90%, white) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 6px 22px rgba(var(--color-primary-rgb), 0.4);
 }
 
 .btn--ghost {
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
   border-color: var(--border-strong);
-  backdrop-filter: blur(8px);
 }
 .btn--ghost:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, 0.2);
 }
@@ -476,6 +494,23 @@ code {
   gap: 0.8rem;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+.hero__actions .btn {
+  white-space: nowrap;
+  border-radius: 999px;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Gradient pills need a clean edge — no overflow clip or backdrop blur. */
+.hero__actions .btn--primary {
+  border: none;
+}
+
+.hero__actions .btn--ghost,
+.hero__actions .btn--ghost-accent {
+  background-clip: padding-box;
 }
 
 /* Collapse the row entirely when no CTAs are rendered — otherwise the

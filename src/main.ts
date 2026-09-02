@@ -559,7 +559,10 @@ function renderIdentity(
  * when blank, falls back to a sensible default that anchors into the
  * relevant section so a freshly deployed site still feels complete.
  */
-function renderHeroActions(remote: RemoteConfig | null) {
+function renderHeroActions(
+  remote: RemoteConfig | null,
+  upcomingEventCount = 0,
+) {
   const container = document.getElementById("hero-actions");
   if (!container) return;
   container.innerHTML = "";
@@ -591,7 +594,13 @@ function renderHeroActions(remote: RemoteConfig | null) {
     };
   };
 
-  const eventsAnchor = document.getElementById("events") ? "#events" : "#home";
+  const memberDefault =
+    upcomingEventCount > 0 && document.getElementById("events")
+      ? { label: "See upcoming events", href: "#events" }
+      : {
+          label: "Get involved",
+          href: document.getElementById("about") ? "#team" : "#learn",
+        };
   // Partner CTA defaults to #sponsor (in-site modal posted to the
   // dashboard inbox), since every network-connected chapter gets
   // persistent inquiry storage "for free" — surviving eboard
@@ -602,8 +611,8 @@ function renderHeroActions(remote: RemoteConfig | null) {
     pick(
       remote?.cta_primary_label,
       remote?.cta_primary_href,
-      "Join our next event",
-      eventsAnchor,
+      memberDefault.label,
+      memberDefault.href,
       "primary",
     ),
     // 2 — partners / sponsors
@@ -2917,7 +2926,7 @@ async function init() {
   // when unresolved). Same pipeline for both preview and normal mode
   // now — the difference is only in which overrides were layered above.
   renderIdentity(remote, bundle?.chapter ?? null);
-  renderHeroActions(remote);
+  renderHeroActions(remote, bundle?.events?.length ?? 0);
   renderPillars();
   renderPageCtaBands();
   // Sponsor inquiry modal — mounted once; triggered via the
