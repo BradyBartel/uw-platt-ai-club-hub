@@ -11,18 +11,9 @@
  * propagate to every hub site on next page load; no rebuild needed.
  */
 
-import { renderBrainMark } from "./brain-mark";
-
 declare const __HUB_CONFIG__: HubConfig;
 
 const DASHBOARD_ORIGIN = "https://dashboard.all-ai-network.org";
-const SPONSORS_ORIGIN = "https://sponsors.all-ai-network.org";
-
-function chapterSponsorsUrl(slug: string): string | null {
-  const s = slug.trim().toLowerCase();
-  if (!s) return null;
-  return `${SPONSORS_ORIGIN}/chapters/${encodeURIComponent(s)}`;
-}
 
 /* ──────────────────────────────────────────────────────────────────
    Page structure — fixed for v1. Each section's data-page attribute
@@ -102,16 +93,10 @@ interface HubConfig {
   hub_name: string;
   hub_acronym: string;
   hub_id: string;
-  /** Domain whose subdomains are chapters. Only needed by a fork
-   *  self-hosting under its own domain; the network's own default is
-   *  all-ai-network.org. */
-  hub_domain?: string;
   university: string;
   description: string;
   about: string;
   theme: { primary_color: string; accent_color: string };
-  logo_url?: string;
-  site_url?: string;
   links: Record<string, string>;
   officers: { name: string; role: string; image: string }[];
   events: { title: string; date: string; time: string; location: string; description: string }[];
@@ -122,6 +107,9 @@ interface HubConfig {
     local_content: LocalContentEntry[];
   };
   content_url: string;
+  /** Absolute URL for OG/Twitter cards (build time). Runtime display uses public/paic-logo.png when set. */
+  logo_url?: string;
+  site_url?: string;
 }
 
 interface LocalContentEntry {
@@ -445,102 +433,117 @@ function applyTheme(theme: { primary: string; accent: string }) {
   root.style.setProperty("--color-accent-rgb", hexToRgb(theme.accent));
 }
 
-const CSS_DEFAULT_PRIMARY = "#4f8fea";
-const CSS_DEFAULT_ACCENT = "#a855f7";
-
-/** Dashboard sometimes ships #000000 before Customize is filled in — unusable on a dark site. */
-function usableThemeColor(hex: string | null | undefined): string | null {
-  const raw = hex?.trim();
-  if (!raw) return null;
-  const norm = raw.toLowerCase().replace(/^#/, "");
-  if (norm === "000" || norm === "000000") return null;
-  return raw;
+/** Prefer dashboard logo, then hub.config absolute URL, then local file. */
+function bundledLogoPath(): string {
+  return "./paic-logo.png";
 }
 
-/** Remote theme when valid; otherwise bundled hub.config, then template CSS defaults. */
+function resolveLogoUrl(remote: RemoteConfig | null): string {
+  const remoteLogo = remote?.logo_url?.trim();
+  if (remoteLogo) return remoteLogo;
+  const configLogo = config.logo_url?.trim();
+  if (configLogo && /^https?:\/\//i.test(configLogo)) return configLogo;
+  return bundledLogoPath();
+}
+
+function applyLogo(logoUrl: string | null) {
+  const label = config.hub_name?.trim() || "Platteville AI Club";
+  const preferred = logoUrl?.trim() || bundledLogoPath();
+  const localFallback = bundledLogoPath();
+
+  for (const id of ["nav-logo-img", "footer-logo-img", "hero-logo-img"]) {
+    const img = document.getElementById(id) as HTMLImageElement | null;
+    if (!img) continue;
+
+    img.alt = label;
+    img.hidden = false;
+    img.setAttribute("aria-hidden", "false");
+
+    const revealAcronym = (show: boolean) => {
+      if (id !== "nav-logo-img") return;
+      const acronym = document.getElementById("nav-acronym");
+      if (!acronym) return;
+      acronym.hidden = !show;
+      acronym.style.display = show ? "" : "none";
+    };
+
+    img.onerror = () => {
+      if (img.getAttribute("src") !== localFallback) {
+        img.src = localFallback;
+        return;
+      }
+      if (id === "hero-logo-img") {
+        img.hidden = true;
+        return;
+      }
+      img.hidden = true;
+      revealAcronym(true);
+    };
+
+    // Avoid flicker: keep the current local mark until the preferred
+    // remote asset is fully decoded, then swap once.
+    const current = img.getAttribute("src") || "";
+    if (!preferred || preferred === current || preferred === localFallback) {
+      if (!current) img.src = localFallback;
+      revealAcronym(false);
+      continue;
+    }
+
+    const pre = new Image();
+    pre.onload = () => {
+      img.src = preferred;
+      revealAcronym(false);
+    };
+    pre.onerror = () => {
+      if (!current) img.src = localFallback;
+      revealAcronym(false);
+    };
+    pre.src = preferred;
+  }
+
+  const acronym = document.getElementById("nav-acronym");
+  if (acronym) {
+    acronym.hidden = true;
+    acronym.style.display = "none";
+  }
+}
+
+const ALL_TEMPLATE_PRIMARY = "#4f8fea";
+const ALL_TEMPLATE_ACCENT = "#a855f7";
+
+/** Use hub.config colors when the dashboard still has the ALL template defaults. */
 function resolveTheme(
   remote: RemoteConfig | null,
   previewPrimary: string | null | undefined,
   previewAccent: string | null | undefined,
 ): { primary: string; accent: string } {
-  const fallback = {
-    primary: usableThemeColor(config.theme.primary_color) ?? CSS_DEFAULT_PRIMARY,
-    accent: usableThemeColor(config.theme.accent_color) ?? CSS_DEFAULT_ACCENT,
-  };
-  if (previewPrimary || previewAccent) {
-    return {
-      primary: usableThemeColor(previewPrimary) ?? fallback.primary,
-      accent: usableThemeColor(previewAccent) ?? fallback.accent,
-    };
-  }
+  const remotePrimary = remote?.theme.primary?.toLowerCase();
+  const remoteAccent = remote?.theme.accent?.toLowerCase();
   return {
-    primary: usableThemeColor(remote?.theme.primary) ?? fallback.primary,
-    accent: usableThemeColor(remote?.theme.accent) ?? fallback.accent,
+    primary:
+      previewPrimary ??
+      (remotePrimary && remotePrimary !== ALL_TEMPLATE_PRIMARY
+        ? remote!.theme.primary
+        : config.theme.primary_color),
+    accent:
+      previewAccent ??
+      (remoteAccent && remoteAccent !== ALL_TEMPLATE_ACCENT
+        ? remote!.theme.accent
+        : config.theme.accent_color),
   };
 }
 
-function bundledLogoPath(): string | null {
-  return config.logo_url ? "./paic-logo.png" : null;
-}
-
-/** Local PAIC art in the repo, else the logo URL the dashboard uploaded. */
-function resolveChapterLogoUrl(remote: RemoteConfig | null): string | null {
-  const bundled = bundledLogoPath();
-  if (bundled) return bundled;
-  const remoteUrl = remote?.logo_url?.trim();
-  return remoteUrl && remoteUrl.length > 0 ? remoteUrl : null;
-}
-
-function upsertHeadLink(
-  rel: string,
-  href: string,
-  type?: string,
-  sizes?: string,
-) {
-  const selector = sizes
-    ? `link[rel="${rel}"][sizes="${sizes}"]`
-    : `link[rel="${rel}"]`;
-  let link = document.querySelector<HTMLLinkElement>(selector);
-  if (!link) {
-    link = document.createElement("link");
-    link.rel = rel;
-    if (sizes) link.sizes = sizes;
-    document.head.appendChild(link);
-  }
-  link.href = href;
-  if (type) link.type = type;
-}
-
-function applyFavicon() {
-  // Square crops ship in public/ — the full PAIC mark is too busy at 16px.
-  upsertHeadLink("icon", "./favicon-32.png", "image/png", "32x32");
-  upsertHeadLink("icon", "./favicon.ico", "image/x-icon");
-  upsertHeadLink(
-    "apple-touch-icon",
-    "./apple-touch-icon.png",
-    "image/png",
-    "180x180",
+/** Dashboard still on template defaults — hub.config branding is the better source. */
+function dashboardLooksUnconfigured(remote: RemoteConfig | null): boolean {
+  if (!remote) return true;
+  const primary = remote.theme.primary?.toLowerCase();
+  const accent = remote.theme.accent?.toLowerCase();
+  return (
+    (!primary || primary === ALL_TEMPLATE_PRIMARY) &&
+    (!accent || accent === ALL_TEMPLATE_ACCENT) &&
+    !remote.about?.trim() &&
+    !remote.tagline?.trim()
   );
-}
-
-function applyLogo(logoUrl: string | null) {
-  for (const id of ["nav-logo-img", "footer-logo-img"]) {
-    const img = document.getElementById(id) as HTMLImageElement | null;
-    if (!img) continue;
-    if (logoUrl) {
-      img.src = logoUrl;
-      img.hidden = false;
-      img.setAttribute("aria-hidden", "false");
-    } else {
-      img.removeAttribute("src");
-      img.hidden = true;
-      img.setAttribute("aria-hidden", "true");
-    }
-  }
-  // Hide the acronym when a real logo is shown in the nav, to avoid
-  // a double-brand effect.
-  const acronym = document.getElementById("nav-acronym");
-  if (acronym) acronym.style.display = logoUrl ? "none" : "";
 }
 
 function applySectionToggles(sections: Record<string, boolean>) {
@@ -574,11 +577,16 @@ function renderIdentity(
   remote: RemoteConfig | null,
   chapter: ChapterBundle["chapter"] | null,
 ) {
-  const hubName = remote?.hub_name ?? chapter?.name ?? config.hub_name;
-  const hubAcronym =
-    remote?.hub_acronym ?? config.hub_acronym ?? hubName.slice(0, 4);
-  const tagline =
-    remote?.tagline ?? config.description ?? "A student-run applied AI community.";
+  const preferConfig = dashboardLooksUnconfigured(remote);
+  const hubName = preferConfig
+    ? config.hub_name
+    : (remote?.hub_name ?? chapter?.name ?? config.hub_name);
+  const hubAcronym = preferConfig
+    ? config.hub_acronym
+    : (remote?.hub_acronym ?? config.hub_acronym ?? hubName.slice(0, 4));
+  const tagline = preferConfig
+    ? config.description
+    : (remote?.tagline ?? config.description ?? "A student-run applied AI community.");
   const university = chapter?.university ?? config.university;
 
   document.title = `${hubName} — ALL Applied AI Network`;
@@ -589,7 +597,6 @@ function renderIdentity(
   setText("nav-hub-name", hubName);
   setText("hero-title", hubName);
   setText("hero-subtitle", tagline);
-  setText("hero-university", university);
   setText("about-title", `About ${hubName}`);
   setText("footer-hub-name", hubName);
   setText("footer-university", university);
@@ -606,11 +613,7 @@ function renderIdentity(
  * when blank, falls back to a sensible default that anchors into the
  * relevant section so a freshly deployed site still feels complete.
  */
-function renderHeroActions(
-  remote: RemoteConfig | null,
-  upcomingEventCount = 0,
-  chapterSlug = "",
-) {
+function renderHeroActions(remote: RemoteConfig | null) {
   const container = document.getElementById("hero-actions");
   if (!container) return;
   container.innerHTML = "";
@@ -642,34 +645,27 @@ function renderHeroActions(
     };
   };
 
-  const memberDefault =
-    upcomingEventCount > 0 && document.getElementById("events")
-      ? { label: "See upcoming events", href: "#events" }
-      : {
-          label: "Get involved",
-          href: document.getElementById("about") ? "#team" : "#learn",
-        };
+  const eventsAnchor = document.getElementById("events") ? "#events" : "#home";
   // Partner CTA defaults to #sponsor (in-site modal posted to the
   // dashboard inbox), since every network-connected chapter gets
   // persistent inquiry storage "for free" — surviving eboard
   // turnover, unlike a per-officer mailto. Eboards who prefer a
   // raw mailto can override via Customize → Hero CTAs.
-  const sponsorsUrl = chapterSponsorsUrl(chapterSlug);
   const buttons: HeroCta[] = [
     // 1 — prospective members
     pick(
       remote?.cta_primary_label,
       remote?.cta_primary_href,
-      memberDefault.label,
-      memberDefault.href,
+      "Join our next event",
+      eventsAnchor,
       "primary",
     ),
     // 2 — partners / sponsors
     pick(
       remote?.cta_secondary_label,
       remote?.cta_secondary_href,
-      sponsorsUrl ? "Support PAIC" : "Become a partner",
-      sponsorsUrl ?? "#sponsor",
+      "Become a partner",
+      "#sponsor",
       "ghost",
     ),
     // 3 — curious learners
@@ -815,21 +811,20 @@ const PAGE_CTA_BANDS: Record<string, PageCtaBandCopy> = {
   },
 };
 
-function renderPageCtaBands(chapterSlug = "") {
-  const sponsorsUrl = chapterSponsorsUrl(chapterSlug);
+function renderPageCtaBands() {
   for (const [pageKey, copy] of Object.entries(PAGE_CTA_BANDS)) {
-    let primary = copy.primary;
-    let secondary = copy.secondary;
-    if (pageKey === "team" && sponsorsUrl) {
-      primary = { label: "Support PAIC", href: sponsorsUrl };
-      secondary = { label: "Send an inquiry", href: "#sponsor" };
-    }
     const band = document.querySelector<HTMLElement>(
       `.page-cta-band[data-page="${pageKey}"]`,
     );
     if (!band) continue;
-    const secondaryHtml = secondary
-      ? `<a class="btn btn--ghost" href="${escapeAttr(secondary.href)}"${/^https?:\/\//.test(secondary.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(secondary.label)}</a>`
+    // Learn is full-bleed tree only — no bottom CTA band.
+    if (pageKey === "learn") {
+      band.hidden = true;
+      band.innerHTML = "";
+      continue;
+    }
+    const secondaryHtml = copy.secondary
+      ? `<a class="btn btn--ghost" href="${escapeAttr(copy.secondary.href)}">${escapeHtml(copy.secondary.label)}</a>`
       : "";
     band.innerHTML = `
       <div class="page-cta-band__inner">
@@ -839,26 +834,12 @@ function renderPageCtaBands(chapterSlug = "") {
           <p class="page-cta-band__desc">${escapeHtml(copy.desc)}</p>
         </div>
         <div class="page-cta-band__actions">
-          <a class="btn btn--primary" href="${escapeAttr(primary.href)}"${/^https?:\/\//.test(primary.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(primary.label)}</a>
+          <a class="btn btn--primary" href="${escapeAttr(copy.primary.href)}">${escapeHtml(copy.primary.label)}</a>
           ${secondaryHtml}
         </div>
       </div>
     `;
   }
-}
-
-function renderFooterFundingLink(chapterSlug: string) {
-  const link = document.getElementById(
-    "footer-funding-link",
-  ) as HTMLAnchorElement | null;
-  if (!link) return;
-  const url = chapterSponsorsUrl(chapterSlug);
-  if (!url) {
-    link.hidden = true;
-    return;
-  }
-  link.href = url;
-  link.hidden = false;
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -903,11 +884,6 @@ function setupSponsorModal(
     fallbackEmail: remote?.social_links?.email ?? null,
   };
 
-  const sponsorsUrl = chapterSponsorsUrl(slug);
-  const fundingLink = sponsorsUrl
-    ? `<p class="sponsor-modal__fund"><a href="${escapeAttr(sponsorsUrl)}" target="_blank" rel="noopener noreferrer">Give directly (tax-deductible) &rarr;</a></p>`
-    : "";
-
   const root = document.createElement("div");
   root.id = "sponsor-modal-root";
   root.className = "sponsor-modal-root";
@@ -939,7 +915,6 @@ function setupSponsorModal(
           something else. Your note lands directly in the eboard's inbox —
           they'll get back within a few days.
         </p>
-        ${fundingLink}
       </div>
       <form class="sponsor-modal__form" novalidate>
         <div class="sponsor-field">
@@ -1296,13 +1271,28 @@ function hideSection(sectionKey: string) {
  * Description renders through the same markdown subset the About
  * section uses — bold / italic / links / bullets — so what the
  * eboard sees in the create-form preview matches what visitors see.
+ *
+ * No hardcoded preview cards — empty lists keep the section and
+ * show a short empty note until the dashboard publishes events.
  */
 function renderEvents(events: EventRow[], _tagline: string | null | undefined) {
   const grid = document.getElementById("events-grid");
   if (!grid) return;
+
+  const desc = document.getElementById("events-desc");
+
   if (!events.length) {
-    hideSection("events");
+    if (desc) {
+      desc.textContent =
+        "Workshops and meetings appear here when the eboard schedules them in the dashboard.";
+    }
+    grid.innerHTML = `<p class="events-empty" role="status">No upcoming events yet.</p>`;
     return;
+  }
+
+  if (desc) {
+    desc.textContent =
+      "Live from the chapter dashboard. New workshops and speaker nights land here when they’re scheduled.";
   }
 
   // Build a parent lookup so child events can label "Part of X."
@@ -1312,6 +1302,72 @@ function renderEvents(events: EventRow[], _tagline: string | null | undefined) {
   for (const ev of events) byId.set(ev.id, ev);
 
   grid.innerHTML = events.map((e) => renderEventCard(e, byId)).join("");
+}
+
+/** Date chip for hub.config.json preview events (not ISO dashboard dates). */
+function renderBundledEventDateChip(rawDate: string | undefined): string {
+  const label = rawDate?.trim() || "TBA";
+  const parts = label.split(/[—–-]/).map((s) => s.trim());
+  const head = parts[0] || "TBA";
+  const tail = parts[1] || "";
+
+  if (/^tba\b/i.test(head)) {
+    const season = tail
+      ? `<div class="event-card__date-season">${escapeHtml(tail)}</div>`
+      : "";
+    return `<div class="event-card__date event-card__date--tba" aria-label="${escapeAttr(label)}">
+          <div class="event-card__date-tba">${escapeHtml(head.toUpperCase())}</div>
+          ${season}
+        </div>`;
+  }
+
+  const month = (tail || head).slice(0, 3).toUpperCase();
+  const day = tail ? head.slice(0, 2) : head.slice(0, 2);
+  return `<div class="event-card__date" aria-label="${escapeAttr(label)}">
+        <div class="event-card__date-month">${escapeHtml(month || "PAIC")}</div>
+        <div class="event-card__date-day">${escapeHtml(day.toUpperCase())}</div>
+      </div>`;
+}
+
+/** hub.config.json events for chapters not live on the dashboard yet. */
+function renderBundledConfigEvents(): boolean {
+  const items = config.events ?? [];
+  if (!items.length) return false;
+  const grid = document.getElementById("events-grid");
+  if (!grid) return false;
+
+  grid.innerHTML = items
+    .map((e) => {
+      const desc = e.description
+        ? `<div class="event-card__desc">${renderRichMarkdown(e.description)}</div>`
+        : "";
+      const locationPill = e.location
+        ? `<a class="event-card__pill event-card__pill--map" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.location)}" target="_blank" rel="noopener noreferrer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span>${escapeHtml(e.location)}</span>
+          </a>`
+        : "";
+      const meta = [e.time, "Chapter preview"].filter(Boolean).join(" · ");
+      return `
+    <article class="event-card" role="listitem">
+      <div class="event-card__inner">
+        ${renderBundledEventDateChip(e.date)}
+        <div class="event-card__body">
+          <div class="event-card__type-row">
+            <span class="event-card__type">upcoming</span>
+          </div>
+          <h3 class="event-card__title">${escapeHtml(e.title)}</h3>
+          ${desc}
+          ${locationPill ? `<div class="event-card__pills">${locationPill}</div>` : ""}
+          <div class="event-card__meta">${escapeHtml(meta)}</div>
+        </div>
+      </div>
+    </article>`;
+    })
+    .join("");
+  return true;
 }
 
 /**
@@ -2160,18 +2216,32 @@ function safeHttpUrl(raw: string): string | null {
   }
 }
 
-function renderOfficers(officers: Officer[], hasRemote: boolean) {
+function shouldUseBundledOfficers(
+  remote: RemoteConfig | null,
+  officers: Officer[],
+): boolean {
+  if (!(config.officers?.length ?? 0)) return false;
+  if (!officers.length) return !remote;
+  if (dashboardLooksUnconfigured(remote)) return true;
+  return officers.every((o) => !o.role?.trim());
+}
+
+function renderOfficers(officers: Officer[], remote: RemoteConfig | null) {
   const grid = document.getElementById("officers-grid");
   if (!grid) return;
 
-  // When the dashboard bundle loaded, its roster is authoritative — an
-  // empty roster means "hide the Team section," NOT "show the template's
-  // placeholders." Only fall back to the bundled local officers when
-  // there was no remote at all (a fresh fork or an offline preview).
-  const list =
-    officers.length > 0
+  const useBundled = shouldUseBundledOfficers(remote, officers);
+  const list = useBundled
+    ? (config.officers ?? []).map((o) => ({
+        name: o.name,
+        role: o.role,
+        image_url: o.image || null,
+        linkedin: null,
+        email: null,
+      }))
+    : officers.length > 0
       ? officers
-      : hasRemote
+      : remote
         ? []
         : (config.officers ?? []).map((o) => ({
             name: o.name,
@@ -2214,7 +2284,7 @@ function renderOfficers(officers: Officer[], hasRemote: boolean) {
       <div class="officer-card" role="listitem">
         <div class="officer-card__avatar">${avatar}</div>
         <div class="officer-card__name">${escapeHtml(o.name)}</div>
-        <div class="officer-card__role">${escapeHtml(o.role ?? "")}</div>
+        <div class="officer-card__role">${escapeHtml(o.role?.trim() || "Founding member")}</div>
         ${links}
       </div>
     `;
@@ -2453,59 +2523,12 @@ async function loadLearningTree() {
  *  Shared by loadLearningTree()'s fallback link and
  *  activateLearningTree()'s iframe src so both point at the same
  *  chapter's merged tree. */
-/* ──────────────────────────────────────────────────────────────────
-   Which chapter is this page for?
-
-   The network hosts chapter sites at {slug}.all-ai-network.org from ONE
-   deployment of this template, so the hostname is the chapter — not a
-   value baked into hub.config.json at build time. That is the whole point:
-   a hosted site can never carry a stale hub_id, and a template update
-   reaches every chapter the moment it deploys rather than never.
-
-   The baked hub_id remains the fallback, because it is still correct for a
-   chapter running its own fork on GitHub Pages, for a self-hosted copy, and
-   for local development.
-   ────────────────────────────────────────────────────────────────── */
-
-/** The domain whose subdomains are chapters. Overridable so a fork
- *  self-hosting under its own domain still resolves. */
-const HUB_DOMAIN = (config.hub_domain ?? "all-ai-network.org").toLowerCase();
-
-/** Subdomains of HUB_DOMAIN that are network services, not chapters.
- *  Without this, loading the hub build at dashboard.all-ai-network.org
- *  would go looking for a chapter called "dashboard". */
-const RESERVED_LABELS = new Set([
-  "www", "api", "app", "dashboard", "sponsors", "sponsor", "admin",
-  "mail", "docs", "status", "cdn", "assets",
-]);
-
-function hostnameSlug(): string {
-  if (typeof window === "undefined") return "";
-  const host = window.location.hostname.toLowerCase();
-  // The apex is the marketing site, not a chapter.
-  if (host === HUB_DOMAIN) return "";
-  if (!host.endsWith(`.${HUB_DOMAIN}`)) return "";
-  const label = host.slice(0, host.length - HUB_DOMAIN.length - 1);
-  // Only a single label: a.b.all-ai-network.org is not a chapter.
-  if (!label || label.includes(".")) return "";
-  if (RESERVED_LABELS.has(label)) return "";
-  return label;
-}
-
-/** The chapter this page is for. NEVER reads ?slug= — that is honoured
- *  only in dashboard preview (see the boot path), because a query string
- *  any link can set must not change which chapter a hub site shows
- *  (security audit 2026-08-18, finding 6). */
-function canonicalSlug(): string {
-  return hostnameSlug() || (config.hub_id?.trim().toLowerCase() ?? "");
-}
-
 function learningTreeChapterSlug(): string {
   // Deliberately ignores ?slug=: it used to be honoured here even without
   // preview=1, so any link could swap which chapter's tree this hub showed
   // (security audit 2026-08-18, finding 6). The dashboard preview drives
   // the iframe through its own URL, not through this hub's query string.
-  return canonicalSlug();
+  return config.hub_id?.trim().toLowerCase() ?? "";
 }
 
 let learningTreeActivated = false;
@@ -2587,102 +2610,126 @@ function renderHeroNetwork() {
   if (!svg) return;
 
   const VB_W = 1200;
-  const VB_H = 500;
+  const VB_H = 560;
+  svg.setAttribute("viewBox", `0 0 ${VB_W} ${VB_H}`);
 
-  // A rough hex-ish grid of node slots. We jitter each slot a bit
-  // and then drop ~25% randomly so the mesh doesn't look machine-
-  // regular. The center column is thinned further to keep the hero
-  // text (H1 + subtitle) readable.
-  const COLS = 8;
-  const ROWS = 4;
-  const cellW = VB_W / (COLS - 1);
-  const cellH = VB_H / (ROWS - 1);
+  const reduceMotion =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Seeded LCG — identical starfield every load.
+  let seed = 317;
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+    return (seed >>> 0) / 0xffffffff;
+  };
+
+  // Three layers of stars: large/bright, medium, tiny background dust.
+  // Poisson-disk spacing per layer so nothing clumps.
+  type Star = { x: number; y: number; r: number; opacity: number; delay: number; dur: number; tone: "primary" | "accent" | "white" };
+  const stars: Star[] = [];
+
+  const placeStar = (minR: number, maxR: number, minOpacity: number, maxOpacity: number, count: number, minGap: number, tone: Star["tone"]) => {
+    let attempts = 0;
+    let placed = 0;
+    while (placed < count && attempts < count * 20) {
+      attempts++;
+      const x = rand() * VB_W;
+      const y = rand() * VB_H;
+      // Keep center clear for logo/title
+      const dx = (x - VB_W / 2) / (VB_W / 2);
+      const dy = (y - VB_H / 2) / (VB_H / 2);
+      if (Math.sqrt(dx * dx + dy * dy) < 0.32) continue;
+      // Min spacing from same-layer stars
+      if (stars.some(s => Math.hypot(s.x - x, s.y - y) < minGap)) continue;
+      stars.push({
+        x, y,
+        r: minR + rand() * (maxR - minR),
+        opacity: minOpacity + rand() * (maxOpacity - minOpacity),
+        delay: rand() * 6,
+        dur: 2.5 + rand() * 4.0,
+        tone,
+      });
+      placed++;
+    }
+  };
+
+  // Large coloured stars (primary/accent) — focal points
+  placeStar(1.6, 2.8, 0.7, 1.0, 18, 80, "primary");
+  placeStar(1.4, 2.4, 0.65, 0.95, 10, 90, "accent");
+  // Medium white/grey stars
+  placeStar(0.9, 1.6, 0.35, 0.7, 30, 40, "white");
+  // Tiny background dust
+  placeStar(0.4, 0.9, 0.15, 0.4, 50, 20, "white");
+
+  // No edges — pure starfield, no connecting lines
   const nodes: NetworkNode[] = [];
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const jitterX = (Math.random() - 0.5) * cellW * 0.4;
-      const jitterY = (Math.random() - 0.5) * cellH * 0.35;
-      const x = c * cellW + jitterX;
-      const y = r * cellH + jitterY;
+  const edges: Array<{ a: NetworkNode; b: NetworkNode; delay: number; tone: "primary" | "accent"; len: number }> = [];
+  const sparks: Array<{ x: number; y: number; r: number; tone: "primary" | "accent"; delay: number; dur: number }> = [];
 
-      // Thin out the center zone where the hero title lives so the
-      // mesh frames the text rather than running through it.
-      const cx = VB_W / 2;
-      const cy = VB_H / 2;
-      const dx = (x - cx) / (VB_W / 2);
-      const dy = (y - cy) / (VB_H / 2);
-      const centerDist = Math.sqrt(dx * dx + dy * dy); // 0 at center, ~1 at edges
-
-      // Probability of keeping the node increases toward the edges.
-      const keepChance = 0.4 + centerDist * 0.6;
-      if (Math.random() > keepChance) continue;
-
-      nodes.push({
-        x,
-        y,
-        r: 2.5 + Math.random() * 2.5,
-        tone: Math.random() < 0.55 ? "primary" : "accent",
-        delay: Math.random() * 4,
-      });
-    }
-  }
-
-  // Edges: connect each node to its closest 2 neighbors, capped at
-  // ~1.5 cells away. Dedupe so (a→b) and (b→a) aren't both drawn.
-  const maxEdgeDist = Math.sqrt(cellW * cellW + cellH * cellH) * 1.5;
-  const edgeSet = new Set<string>();
-  const edges: Array<{ a: NetworkNode; b: NetworkNode; delay: number }> = [];
-  for (let i = 0; i < nodes.length; i++) {
-    const distances = nodes
-      .map((n, j) => ({
-        j,
-        d: Math.hypot(n.x - nodes[i].x, n.y - nodes[i].y),
-      }))
-      .filter((x) => x.j !== i && x.d <= maxEdgeDist)
-      .sort((a, b) => a.d - b.d)
-      .slice(0, 2);
-    for (const { j } of distances) {
-      const key = i < j ? `${i}-${j}` : `${j}-${i}`;
-      if (edgeSet.has(key)) continue;
-      edgeSet.add(key);
-      edges.push({
-        a: nodes[i],
-        b: nodes[j],
-        delay: Math.random() * 5,
-      });
-    }
-  }
-
-  // Build the SVG markup. The `svg` element is the existing one in
-  // index.html — we only replace its inner content.
   const edgesSvg = edges
     .map(
-      (e) => `
+      (e, i) => `
       <line
         x1="${e.a.x.toFixed(1)}" y1="${e.a.y.toFixed(1)}"
         x2="${e.b.x.toFixed(1)}" y2="${e.b.y.toFixed(1)}"
-        class="hero-net-line"
+        class="hero-net-line hero-net-line--${e.tone}"
         style="animation-delay:${e.delay.toFixed(2)}s"
-      />`,
+      />
+      ${
+        !reduceMotion && i % 4 === 0
+          ? `<circle r="2.1" class="hero-net-packet hero-net-packet--${e.tone}">
+              <animateMotion
+                dur="${(2.8 + (i % 5) * 0.5).toFixed(2)}s"
+                repeatCount="indefinite"
+                begin="${(e.delay * 0.2).toFixed(2)}s"
+                path="M ${e.a.x.toFixed(1)},${e.a.y.toFixed(1)} L ${e.b.x.toFixed(1)},${e.b.y.toFixed(1)}"
+              />
+            </circle>`
+          : ""
+      }`,
     )
     .join("");
 
-  const nodesSvg = nodes
+  // Render starfield — edges/nodes/sparks arrays are empty (pure stars).
+  const starsSvg = stars
     .map(
-      (n) => `
+      (s) => `
       <circle
-        cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${n.r.toFixed(1)}"
-        class="hero-net-node hero-net-node--${n.tone}"
-        style="animation-delay:${n.delay.toFixed(2)}s"
+        cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${s.r.toFixed(1)}"
+        class="hero-star hero-star--${s.tone}"
+        style="opacity:${s.opacity.toFixed(2)};animation-delay:${s.delay.toFixed(2)}s;animation-duration:${s.dur.toFixed(2)}s"
       />`,
     )
     .join("");
 
-  svg.innerHTML = `
-    <g class="hero-net-edges">${edgesSvg}</g>
-    <g class="hero-net-nodes">${nodesSvg}</g>
-  `;
+  svg.innerHTML = `<g class="hero-stars">${starsSvg}</g>`;
+}
+
+/** Soft scroll-in for home sections — skipped when reduced-motion. */
+function wireSectionReveals() {
+  const reduce =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sections = document.querySelectorAll<HTMLElement>(".section");
+  if (reduce) {
+    sections.forEach((el) => el.classList.add("is-visible"));
+    return;
+  }
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add("is-visible");
+        io.unobserve(entry.target);
+      }
+    },
+    { rootMargin: "0px 0px -10% 0px", threshold: 0.12 },
+  );
+  sections.forEach((el) => {
+    el.classList.add("is-reveal");
+    io.observe(el);
+  });
 }
 
 /* Workshops + playbooks sections used to live on the hub template
@@ -2766,6 +2813,8 @@ function showPage(pageKey: string, pages: Page[]) {
   // the tab is actually shown.
   if (page.key === "learn") activateLearningTree();
 
+  document.body.classList.toggle("route-learn", page.key === "learn");
+
   // Flip nav tab active state.
   document.querySelectorAll("[data-page-tab]").forEach((el) => {
     const match = el.getAttribute("data-page-tab") === page.key;
@@ -2790,7 +2839,8 @@ function showPage(pageKey: string, pages: Page[]) {
   // title bar that tells them where they are.
   const header = document.getElementById("page-header");
   if (header) {
-    if (page.key === "home") {
+    // Learn goes straight into the embedded tree — skip the intro band.
+    if (page.key === "home" || page.key === "learn") {
       header.hidden = true;
     } else {
       const copy = PAGE_HEADER_COPY[page.key] ?? {
@@ -2934,10 +2984,18 @@ async function init() {
   // Resolve which slug to fetch: preview mode passes slug explicitly
   // from the dashboard; normal mode reads it from the bundled config
   // (set by the chapter's hub.config.json).
-  // Hosted: the hostname. Forked/self-hosted: the baked hub_id. Preview:
-  // whatever the dashboard asked for, and only there.
-  const configuredSlug = canonicalSlug();
+  const configuredSlug = config.hub_id?.trim().toLowerCase() ?? "";
   const slug = (isPreview ? params?.get("slug") : null) ?? configuredSlug;
+
+  // Paint local theme + mesh immediately — waiting on the public bundle
+  // left the template blue wash up for a full network RTT.
+  applyTheme({
+    primary:
+      (isPreview ? params?.get("primary") : null) ?? config.theme.primary_color,
+    accent:
+      (isPreview ? params?.get("accent") : null) ?? config.theme.accent_color,
+  });
+  renderHeroNetwork();
 
   // Always try to fetch the bundle — in preview we want live data on
   // top of in-progress URL overrides; in normal mode it's the whole
@@ -2954,14 +3012,13 @@ async function init() {
       primary: config.theme.primary_color,
       accent: config.theme.accent_color,
     });
+    applyLogo(bundledLogoPath());
     renderUnderConstruction({
       hubName: config.hub_name ?? "",
       slug,
       reason: slug
         ? `the dashboard has no chapter with the id "${slug}"`
-        : hostnameSlug()
-          ? "this address doesn't match a chapter"
-          : "no hub_id is set in hub.config.json",
+        : "no hub_id is set in hub.config.json",
     });
     return;
   }
@@ -2981,10 +3038,8 @@ async function init() {
   if (isPreview && params && params.get("logo") !== null) {
     const logoParam = params.get("logo");
     applyLogo(logoParam && logoParam.length > 0 ? logoParam : null);
-    applyFavicon();
   } else {
-    applyLogo(resolveChapterLogoUrl(remote));
-    applyFavicon();
+    applyLogo(resolveLogoUrl(remote));
   }
 
   // Section visibility: start from saved + fold in preview `off=` list.
@@ -3004,13 +3059,13 @@ async function init() {
   // when unresolved). Same pipeline for both preview and normal mode
   // now — the difference is only in which overrides were layered above.
   renderIdentity(remote, bundle?.chapter ?? null);
-  renderHeroActions(remote, bundle?.events?.length ?? 0, configuredSlug);
+  renderHeroActions(remote);
   renderPillars();
-  renderPageCtaBands(configuredSlug);
-  renderFooterFundingLink(configuredSlug);
-  // Sponsor inquiry modal — mounted once; triggered via `#sponsor`
-  // (Team page CTA + deep links). Hero "Support PAIC" goes to the
-  // chapter funding page on sponsors.all-ai-network.org.
+  renderPageCtaBands();
+  // Sponsor inquiry modal — mounted once; triggered via the
+  // `#sponsor` hash route which the hero's partner CTA points to.
+  // Always the configured chapter, never the preview slug: a diverted
+  // sponsor lead is the part of finding 6 that costs real money.
   setupSponsorModal(
     configuredSlug || null,
     bundle?.chapter?.name ?? remote?.hub_name ?? config.hub_name,
@@ -3024,17 +3079,10 @@ async function init() {
   renderBadges(bundle?.badges ?? []);
   renderMerch(bundle?.merch ?? []);
   renderProjects(bundle?.projects ?? []);
-  renderOfficers(remote?.officers ?? [], remote !== null);
+  renderOfficers(remote?.officers ?? [], remote);
   renderSocialFeed(bundle?.social_feeds);
   renderSocials(remote?.social_links ?? {});
-  renderHeroNetwork();
-  // The chapter's own mark, in its colours. Acronym falls back through the
-  // live config, then the baked one, then "ALL".
-  renderBrainMark(
-    document.getElementById("hero-mark"),
-    remote?.hub_acronym ?? config.hub_acronym ?? null,
-    bundledLogoPath(),
-  );
+  wireSectionReveals();
 
   // Learning tree iframes the content repo's tree page — fire-and-
   // forget since the iframe handles its own load / timeout states.

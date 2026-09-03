@@ -130,7 +130,8 @@ export function renderBrainMark(
 
   const logo = logoUrl?.trim();
   if (logo) {
-    el.innerHTML = `<img class="bmark bmark--logo${
+    // Raster chapter art uses the same assemble cadence as the SVG mesh.
+    el.innerHTML = `<img class="bmark bmark--art${
       reduce ? " bmark--static" : ""
     }" src="${escapeAttr(logo)}" alt="" decoding="async" />`;
     return;

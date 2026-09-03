@@ -9,16 +9,18 @@
     "primary_color": "#1A64B7",
     "accent_color": "#F58113"
   },
-  "logo_url": "https://bradybartel.github.io/uw-platt-ai-club-hub/paic-logo.png",
-  "site_url": "https://bradybartel.github.io/uw-platt-ai-club-hub/",
+  "logo_url": "https://gdxifnnfirnzljtxnhch.supabase.co/storage/v1/object/public/chapter-logos/27b90900-006d-4ccb-b906-81ce6d753bd8/a6552fe4-dd9c-495e-8eee-569744160c82.png",
+  "site_url": "https://uw-platt-ai-club.all-ai-network.org/",
   "links": {
     "discord": "",
-    "github": "https://github.com/BradyBartel/uw-platt-ai-club-hub",
+    "github": "",
     "instagram": "",
     "linkedin": "",
     "email": ""
   },
-  "officers": [],
+  "officers": [
+    { "name": "Brady Bartel", "role": "President", "image": "" }
+  ],
   "events": [],
   "features": {
     "learning_tree": true,

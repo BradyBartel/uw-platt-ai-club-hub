@@ -5,9 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Platteville AI Club — ALL Applied AI Network</title>
   <meta name="description" content="UW-Platteville's student-run applied AI community — workshops, projects, and real portfolio work." />
-  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
-  <link rel="icon" type="image/x-icon" href="./favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="./paic-logo.png" />
+  <!-- Critical paint: dark base + PAIC theme before CSS/JS arrive -->
+  <style>
+    html, body { background: #0a0a0b; color-scheme: dark; }
+    :root {
+      --color-primary: #1a64b7;
+      --color-primary-rgb: 26, 100, 183;
+      --color-accent: #f58113;
+      --color-accent-rgb: 245, 129, 19;
+    }
+  </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -19,8 +27,8 @@
   <nav class="nav" id="nav">
     <div class="nav__inner">
       <a href="/" class="nav__brand">
-        <img id="nav-logo-img" class="nav__logo-img" alt="" hidden aria-hidden="true" />
-        <span class="nav__logo" id="nav-acronym">PAIC</span>
+        <img id="nav-logo-img" class="nav__logo-img" src="./paic-logo.png" alt="Platteville AI Club" />
+        <span class="nav__logo" id="nav-acronym" hidden>PAIC</span>
         <span class="nav__name" id="nav-hub-name">Platteville AI Club</span>
       </a>
       <!-- Page tabs are rendered by main.ts::renderPageNav from the
@@ -62,11 +70,13 @@
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
     ></svg>
-    <!-- The ALL mark, in this chapter's colours with its acronym.
-         Rendered by main.ts::renderPaicMark. -->
-    <div class="hero__mark" id="hero-mark" aria-hidden="true"></div>
     <div class="hero__inner">
-      <div class="hero__eyebrow" id="hero-university">University of Wisconsin–Platteville</div>
+      <img
+        id="hero-logo-img"
+        class="hero__logo"
+        src="./paic-logo.png"
+        alt="Platteville AI Club"
+      />
       <h1 class="hero__title" id="hero-title">Platteville AI Club</h1>
       <p class="hero__subtitle" id="hero-subtitle">UW-Platteville's student-run applied AI community — workshops, projects, and real portfolio work.</p>
       <div class="hero__actions" id="hero-actions"></div>
@@ -126,7 +136,7 @@
           <h2 class="section__title">Upcoming events</h2>
         </div>
         <p class="section__desc" id="events-desc">
-          Live from the dashboard. As the eboard adds events, they show up here.
+          Workshops and meetings from the chapter dashboard.
         </p>
       </div>
       <div class="events-grid" id="events-grid" role="list"></div>
@@ -432,7 +442,7 @@
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand">
-        <img id="footer-logo-img" class="footer__logo-img" alt="" hidden aria-hidden="true" />
+        <img id="footer-logo-img" class="footer__logo-img" src="./paic-logo.png" alt="Platteville AI Club" />
         <div>
           <div class="footer__name" id="footer-hub-name">Platteville AI Club</div>
           <div class="footer__uni" id="footer-university">University of Wisconsin–Platteville</div>
@@ -446,9 +456,6 @@
         <p class="footer__sub" id="footer-network-stats">
           Part of a network of AI chapters across the country.
           <a href="https://all-ai-network.org/impact.html" target="_blank" rel="noopener">See the network &rarr;</a>
-        </p>
-        <p class="footer__sub">
-          <a href="https://sponsors.all-ai-network.org/chapters/uw-platt-ai-club" id="footer-funding-link" class="link" target="_blank" rel="noopener">Support PAIC (tax-deductible gifts) &rarr;</a>
         </p>
       </div>
     </div>
