@@ -59,17 +59,16 @@
   <!-- ══ Hero ══════════════════════════════════════════════════════ -->
   <header class="hero" id="hero" data-section="hero" data-page="home">
     <div class="hero__glow" aria-hidden="true"></div>
-    <!-- Neural-network decoration: main.ts::renderHeroNetwork generates
-         nodes + connecting edges, inheriting --color-primary +
-         --color-accent via currentColor so the whole pattern recolors
-         when the eboard changes their theme. -->
-    <svg
+    <!-- Static canvas starfield + a few CSS-only twinkle dots.
+         JS never redraws during scroll — that's what kept it smooth. -->
+    <canvas
       class="hero__network"
       id="hero-network"
-      viewBox="0 0 1200 500"
-      preserveAspectRatio="xMidYMid slice"
+      width="1200"
+      height="560"
       aria-hidden="true"
-    ></svg>
+    ></canvas>
+    <div class="hero__twinkles" id="hero-twinkles" aria-hidden="true"></div>
     <div class="hero__inner">
       <img
         id="hero-logo-img"

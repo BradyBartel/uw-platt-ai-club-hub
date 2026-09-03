@@ -2581,129 +2581,144 @@ function activateLearningTree() {
  *  than the big workshop/playbook cards so a long row of nodes
  *  reads as a tier. */
 /* ──────────────────────────────────────────────────────────────────
-   Hero neural-network background
+   Hero starfield — sparkle-only (no always-on lights)
 
-   Generates an SVG mesh of nodes + connecting edges into #hero-network.
-   Nodes inherit currentColor (which main.ts sets from --color-primary
-   and --color-accent), so the whole pattern recolors live when the
-   eboard changes their theme.
-
-   Why procedural instead of hardcoded markup: we want different
-   layouts on different reloads so no two sessions look identical,
-   and fixed coordinates in HTML would bake a specific pattern into
-   every chapter's site. Seeded so the generation is stable for the
-   duration of a page load (looks the same after re-renders).
+   Place stars once, leave the canvas blank (or dim static fallback
+   for reduced-motion), and put a CSS twinkle on every star that
+   rests at opacity 0 between pulses.
    ────────────────────────────────────────────────────────────────── */
 
-interface NetworkNode {
-  x: number;
-  y: number;
-  r: number;
-  /** "primary" or "accent" — which theme color this node uses. */
-  tone: "primary" | "accent";
-  /** Stagger animation phase so the whole mesh doesn't pulse in sync. */
-  delay: number;
-}
-
 function renderHeroNetwork() {
-  const svg = document.getElementById("hero-network");
-  if (!svg) return;
-
-  const VB_W = 1200;
-  const VB_H = 560;
-  svg.setAttribute("viewBox", `0 0 ${VB_W} ${VB_H}`);
+  const canvas = document.getElementById("hero-network") as HTMLCanvasElement | null;
+  if (!canvas) return;
 
   const reduceMotion =
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Seeded LCG — identical starfield every load.
+  const VB_W = 1200;
+  const VB_H = 560;
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  canvas.width = Math.round(VB_W * dpr);
+  canvas.height = Math.round(VB_H * dpr);
+
+  const ctx = canvas.getContext("2d", { alpha: true });
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
   let seed = 317;
   const rand = () => {
     seed = (seed * 1664525 + 1013904223) & 0xffffffff;
     return (seed >>> 0) / 0xffffffff;
   };
 
-  // Three layers of stars: large/bright, medium, tiny background dust.
-  // Poisson-disk spacing per layer so nothing clumps.
-  type Star = { x: number; y: number; r: number; opacity: number; delay: number; dur: number; tone: "primary" | "accent" | "white" };
+  type Star = { x: number; y: number; r: number; a: number; color: string };
   const stars: Star[] = [];
 
-  const placeStar = (minR: number, maxR: number, minOpacity: number, maxOpacity: number, count: number, minGap: number, tone: Star["tone"]) => {
+  const rootStyle = getComputedStyle(document.documentElement);
+  const primary =
+    rootStyle.getPropertyValue("--color-primary").trim() || "#1a64b7";
+  const accent =
+    rootStyle.getPropertyValue("--color-accent").trim() || "#f58113";
+
+  const place = (
+    minR: number,
+    maxR: number,
+    minOp: number,
+    maxOp: number,
+    count: number,
+    minGap: number,
+    color: string,
+  ) => {
     let attempts = 0;
     let placed = 0;
-    while (placed < count && attempts < count * 20) {
+    while (placed < count && attempts < count * 24) {
       attempts++;
       const x = rand() * VB_W;
       const y = rand() * VB_H;
-      // Keep center clear for logo/title
       const dx = (x - VB_W / 2) / (VB_W / 2);
       const dy = (y - VB_H / 2) / (VB_H / 2);
-      if (Math.sqrt(dx * dx + dy * dy) < 0.32) continue;
-      // Min spacing from same-layer stars
-      if (stars.some(s => Math.hypot(s.x - x, s.y - y) < minGap)) continue;
+      if (Math.sqrt(dx * dx + dy * dy) < 0.3) continue;
+      if (stars.some((s) => Math.hypot(s.x - x, s.y - y) < minGap)) continue;
       stars.push({
-        x, y,
+        x,
+        y,
         r: minR + rand() * (maxR - minR),
-        opacity: minOpacity + rand() * (maxOpacity - minOpacity),
-        delay: rand() * 6,
-        dur: 2.5 + rand() * 4.0,
-        tone,
+        a: minOp + rand() * (maxOp - minOp),
+        color,
       });
       placed++;
     }
   };
 
-  // Large coloured stars (primary/accent) — focal points
-  placeStar(1.6, 2.8, 0.7, 1.0, 18, 80, "primary");
-  placeStar(1.4, 2.4, 0.65, 0.95, 10, 90, "accent");
-  // Medium white/grey stars
-  placeStar(0.9, 1.6, 0.35, 0.7, 30, 40, "white");
-  // Tiny background dust
-  placeStar(0.4, 0.9, 0.15, 0.4, 50, 20, "white");
+  place(1.6, 2.8, 0.75, 1, 12, 88, primary);
+  place(1.4, 2.4, 0.7, 0.95, 7, 96, accent);
+  place(0.8, 1.5, 0.32, 0.7, 22, 42, "#e8eaff");
+  place(0.4, 0.85, 0.14, 0.4, 26, 22, "#e8eaff");
 
-  // No edges — pure starfield, no connecting lines
-  const nodes: NetworkNode[] = [];
-  const edges: Array<{ a: NetworkNode; b: NetworkNode; delay: number; tone: "primary" | "accent"; len: number }> = [];
-  const sparks: Array<{ x: number; y: number; r: number; tone: "primary" | "accent"; delay: number; dur: number }> = [];
+  ctx.clearRect(0, 0, VB_W, VB_H);
 
-  const edgesSvg = edges
-    .map(
-      (e, i) => `
-      <line
-        x1="${e.a.x.toFixed(1)}" y1="${e.a.y.toFixed(1)}"
-        x2="${e.b.x.toFixed(1)}" y2="${e.b.y.toFixed(1)}"
-        class="hero-net-line hero-net-line--${e.tone}"
-        style="animation-delay:${e.delay.toFixed(2)}s"
-      />
-      ${
-        !reduceMotion && i % 4 === 0
-          ? `<circle r="2.1" class="hero-net-packet hero-net-packet--${e.tone}">
-              <animateMotion
-                dur="${(2.8 + (i % 5) * 0.5).toFixed(2)}s"
-                repeatCount="indefinite"
-                begin="${(e.delay * 0.2).toFixed(2)}s"
-                path="M ${e.a.x.toFixed(1)},${e.a.y.toFixed(1)} L ${e.b.x.toFixed(1)},${e.b.y.toFixed(1)}"
-              />
-            </circle>`
-          : ""
-      }`,
-    )
+  const twinkleHost = document.getElementById("hero-twinkles");
+
+  // Reduced motion: quiet static field, no pulsing lights.
+  if (reduceMotion) {
+    for (const s of stars) {
+      ctx.globalAlpha = s.a * 0.55;
+      ctx.fillStyle = s.color;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (twinkleHost) twinkleHost.innerHTML = "";
+    return;
+  }
+
+  if (!twinkleHost || stars.length === 0) {
+    if (twinkleHost) twinkleHost.innerHTML = "";
+    return;
+  }
+
+  const classFor = (star: Star, pace: "mid" | "linger") => {
+    const parts = ["hero__twinkle"];
+    if (star.color === primary) parts.push("hero__twinkle--primary");
+    else if (star.color === accent) parts.push("hero__twinkle--accent");
+    else if (star.r < 0.9) parts.push("hero__twinkle--dust");
+    if (pace === "linger") parts.push("hero__twinkle--linger");
+    return parts.join(" ");
+  };
+
+  // Mix of mid pulses and longer holds — nothing frantic.
+  twinkleHost.innerHTML = stars
+    .map((star) => {
+      const pace: "mid" | "linger" = rand() < 0.55 ? "mid" : "linger";
+      const dur =
+        pace === "linger" ? 4.8 + rand() * 3.2 : 3.2 + rand() * 2.4;
+      const delay = rand() * 9;
+      const left = (star.x / VB_W) * 100;
+      const top = (star.y / VB_H) * 100;
+      return `<span class="${classFor(star, pace)}" style="left:${left}%;top:${top}%;animation-duration:${dur}s;animation-delay:${delay}s"></span>`;
+    })
     .join("");
+}
 
-  // Render starfield — edges/nodes/sparks arrays are empty (pure stars).
-  const starsSvg = stars
-    .map(
-      (s) => `
-      <circle
-        cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${s.r.toFixed(1)}"
-        class="hero-star hero-star--${s.tone}"
-        style="opacity:${s.opacity.toFixed(2)};animation-delay:${s.delay.toFixed(2)}s;animation-duration:${s.dur.toFixed(2)}s"
-      />`,
-    )
-    .join("");
+/** Pause hero CSS motion while the user is scrolling; resume in place
+ *  after settle. Avoids the hitch of animations fighting scroll. */
+function wireScrollPerf() {
+  const reduce =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) return;
 
-  svg.innerHTML = `<g class="hero-stars">${starsSvg}</g>`;
+  let timer = 0;
+  const onScroll = () => {
+    document.documentElement.classList.add("is-scrolling");
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      document.documentElement.classList.remove("is-scrolling");
+    }, 160);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
 }
 
 /** Soft scroll-in for home sections — skipped when reduced-motion. */
@@ -3083,6 +3098,7 @@ async function init() {
   renderSocialFeed(bundle?.social_feeds);
   renderSocials(remote?.social_links ?? {});
   wireSectionReveals();
+  wireScrollPerf();
 
   // Learning tree iframes the content repo's tree page — fire-and-
   // forget since the iframe handles its own load / timeout states.
