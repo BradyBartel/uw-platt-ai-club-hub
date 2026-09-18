@@ -896,7 +896,16 @@ function renderPageCtaBands() {
    AAINSponsor.refresh() so newly visible buttons stay wired.
    ────────────────────────────────────────────────────────────────── */
 
-type AAINSponsorApi = { refresh: () => void };
+type AAINSponsorApi = {
+  refresh: () => void;
+  open?: (opts: {
+    slug: string;
+    title?: string | null;
+    theme?: string;
+    accent?: string | null;
+  }) => void;
+  close?: () => void;
+};
 
 function getAAINSponsor(): AAINSponsorApi | undefined {
   return (window as Window & { AAINSponsor?: AAINSponsorApi }).AAINSponsor;
@@ -910,8 +919,32 @@ function refreshSponsorWidget() {
   getAAINSponsor()?.refresh?.();
 }
 
-function openSponsorWidget() {
+/** Force the inquiry form view — never flash a leftover thank-you panel. */
+function resetSponsorWidgetUi() {
+  const root = document.getElementById("aain-sponsor-root");
+  if (!root) return;
+  const success = root.querySelector<HTMLElement>(".aain-sponsor-success");
+  const body = root.querySelector<HTMLElement>(".aain-sponsor-body");
+  if (success) success.hidden = true;
+  if (body) body.hidden = false;
+}
+
+function openSponsorWidget(chapterName: string) {
   refreshSponsorWidget();
+  resetSponsorWidgetUi();
+
+  const slug = chapterSponsorSlug();
+  const accent = config.theme?.primary_color?.trim() || "#1A64B7";
+  const title = `Work with ${chapterName}`;
+  const api = getAAINSponsor();
+
+  if (api?.open) {
+    api.open({ slug, title, theme: "dark", accent });
+    // Widget may paint before it clears leftover success; reset again next frame.
+    requestAnimationFrame(() => resetSponsorWidgetUi());
+    return;
+  }
+
   const btn = document.getElementById("sponsor-cta") as HTMLButtonElement | null;
   btn?.click();
 }
@@ -931,7 +964,10 @@ function whenSponsorWidgetReady(cb: () => void) {
   }, 50);
 }
 
+let sponsorChapterName = "Platteville AI Club";
+
 function wireSponsorWidget(chapterName: string) {
+  sponsorChapterName = chapterName;
   const slug = chapterSponsorSlug();
   const accent = config.theme?.primary_color?.trim() || "#1A64B7";
   const title = `Work with ${chapterName}`;
@@ -945,7 +981,7 @@ function wireSponsorWidget(chapterName: string) {
   const maybeOpen = () => {
     if (window.location.hash !== "#sponsor") return;
     whenSponsorWidgetReady(() => {
-      openSponsorWidget();
+      openSponsorWidget(sponsorChapterName);
       history.replaceState(
         null,
         "",

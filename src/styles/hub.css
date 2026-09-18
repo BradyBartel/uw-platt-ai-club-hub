@@ -3501,6 +3501,22 @@ a.social-card__link:hover {
   border: 0;
 }
 
+/* Widget ships `.aain-sponsor-success { display:flex }` which can
+   override the HTML `hidden` attribute and flash the thank-you panel
+   before the form (or on reopen). Force hidden to win. */
+.aain-sponsor-success[hidden],
+.aain-sponsor-body[hidden] {
+  display: none !important;
+}
+
+/* After Send inquiry, thank-you should feel like its own confirmation
+   screen — hide the inquiry header while success is showing. */
+.aain-sponsor-root:has(.aain-sponsor-body[hidden]) .aain-sponsor-kicker,
+.aain-sponsor-root:has(.aain-sponsor-body[hidden]) .aain-sponsor-title,
+.aain-sponsor-root:has(.aain-sponsor-body[hidden]) .aain-sponsor-desc {
+  display: none !important;
+}
+
 /* ── Under-construction holding page ──────────────────────────────────
    Shown in place of the whole site when the chapter's data can't be
    loaded. Uses the site's own theme so it reads as a deliberate page
