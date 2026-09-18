@@ -598,10 +598,38 @@ html.is-scrolling .hero__logo {
   flex-wrap: wrap;
 }
 
+/* Equal footprint so Join us / Become a partner / Join Our Teams
+   read as one balanced CTA row instead of three different widths. */
+.hero__actions .btn {
+  flex: 1 1 11.5rem;
+  max-width: 14rem;
+  min-height: 2.85rem;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
 /* Primary CTA sits above ghost buttons so backdrop-filter doesn't
    bleed a faint halo onto its rounded edges. */
 .hero__actions .btn--primary {
   z-index: 1;
+}
+
+@media (max-width: 520px) {
+  .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: min(100%, 18rem);
+    margin-inline: auto;
+  }
+
+  .hero__actions .btn {
+    flex: none;
+    max-width: none;
+    width: 100%;
+  }
 }
 
 /* Collapse the row entirely when no CTAs are rendered — otherwise the
