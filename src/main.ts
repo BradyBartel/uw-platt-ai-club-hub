@@ -110,6 +110,8 @@ interface HubConfig {
   /** Absolute URL for OG/Twitter cards (build time). Runtime display uses public/paic-logo.png when set. */
   logo_url?: string;
   site_url?: string;
+  /** ALL chapter membership invite (dashboard /join/…). */
+  join_url?: string;
 }
 
 interface LocalContentEntry {
@@ -627,6 +629,9 @@ function communityChatUrl(remote: RemoteConfig | null): string | null {
 
 /** Dashboard membership join — adds them to the chapter roster. */
 function chapterMemberJoinUrl(): string | null {
+  const configured = config.join_url?.trim();
+  if (configured && safeHttpUrl(configured)) return configured;
+
   const slug = config.hub_id?.trim().toLowerCase();
   if (!slug) return null;
   return `${DASHBOARD_ORIGIN}/join/${encodeURIComponent(slug)}`;
