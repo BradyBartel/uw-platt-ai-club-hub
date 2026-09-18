@@ -3447,6 +3447,45 @@ a.social-card__link:hover {
   }
 }
 
+/* ══ Ready to Join? — Teams CTA above footer (MSOE-style) ════════ */
+
+.section--join {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  border-top: 1px solid var(--border);
+}
+
+.section__inner--join {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.join-cta {
+  text-align: center;
+}
+
+.join-cta__title {
+  margin: 0 0 1rem;
+  font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.join-cta__desc {
+  margin: 0 auto 1.75rem;
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.join-cta__btn {
+  min-width: 11rem;
+  justify-content: center;
+}
+
 /* ══ ALL sponsor widget trigger ═══════════════════════════════════
    Visually hidden; hero / page "Become a partner" (#sponsor) clicks it. */
 

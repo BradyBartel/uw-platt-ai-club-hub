@@ -625,6 +625,24 @@ function communityJoinUrl(remote: RemoteConfig | null): string | null {
   return null;
 }
 
+/** MSOE-style "Ready to Join?" band above the footer. */
+function renderJoinCta(remote: RemoteConfig | null) {
+  const section = document.getElementById("join");
+  const btn = document.getElementById("join-teams-cta") as HTMLAnchorElement | null;
+  if (!section || !btn) return;
+
+  const url = communityJoinUrl(remote);
+  if (!url) {
+    section.hidden = true;
+    return;
+  }
+
+  btn.href = url;
+  const isTeams = /teams\.microsoft\.com/i.test(url);
+  btn.textContent = isTeams ? "Join Our Teams" : "Join our community";
+  section.hidden = false;
+}
+
 function renderHeroActions(remote: RemoteConfig | null) {
   const container = document.getElementById("hero-actions");
   if (!container) return;
@@ -2892,6 +2910,7 @@ async function init() {
   renderHeroActions(remote);
   renderPillars();
   renderPageCtaBands();
+  renderJoinCta(remote);
   // Official ALL sponsor widget — Partner section button + #sponsor hash.
   wireSponsorWidget(
     bundle?.chapter?.name ?? remote?.hub_name ?? config.hub_name,
