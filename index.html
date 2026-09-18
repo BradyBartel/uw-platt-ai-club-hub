@@ -448,9 +448,8 @@
   </button>
 
   <!-- ══ Footer ════════════════════════════════════════════════════
-       MSOE-style columns: brand · social media · ALL network.
-       Social list is filled by main.ts::renderSocials. Network stats
-       line is refreshed from the public aain-api endpoint. -->
+       Closer to MSOE: brand · Quick Links · Social Media, with the
+       ALL network line as a full-width strip underneath. -->
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand-col">
@@ -466,11 +465,18 @@
         </p>
       </div>
 
+      <div class="footer__links-col">
+        <h3 class="footer__heading">Quick Links</h3>
+        <ul class="footer__link-grid" id="footer-quick-links"></ul>
+      </div>
+
       <div class="footer__social-col">
         <h3 class="footer__heading">Social Media</h3>
         <ul class="footer__social-list" id="footer-socials"></ul>
       </div>
+    </div>
 
+    <div class="footer__aain-bar">
       <div class="footer__aain">
         <a href="https://all-ai-network.org" class="link" target="_blank" rel="noopener">
           Powered by <strong>ALL Applied AI Network</strong>

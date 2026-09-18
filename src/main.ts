@@ -2209,6 +2209,44 @@ function renderSocials(links: Record<string, string>) {
     .join("");
 }
 
+/** Site-section Quick Links — mirrors the MSOE footer middle column. */
+function renderFooterQuickLinks(visiblePages: Page[]) {
+  const list = document.getElementById("footer-quick-links");
+  if (!list) return;
+
+  const pageKeys = new Set(visiblePages.map((p) => p.key));
+  const items: Array<{ label: string; href: string }> = [];
+
+  for (const page of visiblePages) {
+    items.push({ label: page.label, href: `#${page.key}` });
+  }
+
+  // Useful in-page anchors when those sections exist on a visible page.
+  if (pageKeys.has("home") && document.getElementById("events")) {
+    items.push({ label: "Events", href: "#events" });
+  }
+  if (pageKeys.has("team") && document.getElementById("about")) {
+    items.push({ label: "About", href: "#about" });
+  }
+  items.push({ label: "Partner with us", href: "#sponsor" });
+
+  // De-dupe by label (Home tab vs Events shouldn't collide).
+  const seen = new Set<string>();
+  const unique = items.filter((item) => {
+    const key = item.label.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  list.innerHTML = unique
+    .map(
+      (item) =>
+        `<li><a class="footer-link" href="${escapeAttr(item.href)}">${escapeHtml(item.label)}</a></li>`,
+    )
+    .join("");
+}
+
 /* ──────────────────────────────────────────────────────────────────
    Learning / Workshops / Playbooks — CDN content
    ────────────────────────────────────────────────────────────────── */
@@ -2971,7 +3009,9 @@ async function init() {
   // Wire the multi-page tabs AFTER all sections have rendered — so
   // pagesWithContent() sees the final DOM + data state and can hide
   // tabs whose sections are all empty/toggled-off.
-  wirePageRouting(pagesWithContent(sectionsToApply));
+  const visiblePages = pagesWithContent(sectionsToApply);
+  renderFooterQuickLinks(visiblePages);
+  wirePageRouting(visiblePages);
 
   // Preview + edit mode → attach clickable "Edit here" pills to every
   // section that maps to a dashboard route. Dashboard parent listens

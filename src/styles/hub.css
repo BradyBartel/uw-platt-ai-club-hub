@@ -2768,7 +2768,7 @@ a.social-card__link:hover {
 
 .footer {
   border-top: 1px solid var(--border);
-  padding: 3.5rem 1.5rem 2.75rem;
+  padding: 3.5rem 1.5rem 2.5rem;
   background: rgba(0, 0, 0, 0.4);
   margin-top: 4rem;
 }
@@ -2777,8 +2777,8 @@ a.social-card__link:hover {
   max-width: 1280px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 1fr);
-  gap: 2.5rem 3rem;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.1fr) minmax(0, 0.7fr);
+  gap: 2.25rem 3rem;
   align-items: start;
 }
 
@@ -2825,16 +2825,27 @@ a.social-card__link:hover {
   color: var(--text-secondary);
 }
 
+.footer__links-col,
 .footer__social-col {
   min-width: 0;
 }
 
 .footer__heading {
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.9rem;
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
+}
+
+.footer__link-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1.5rem;
+  row-gap: 0.55rem;
 }
 
 .footer__social-list {
@@ -2863,13 +2874,18 @@ a.footer-link:hover {
   opacity: 0.75;
 }
 
+.footer__aain-bar {
+  max-width: 1280px;
+  margin: 2rem auto 0;
+  padding-top: 1.35rem;
+  border-top: 1px solid var(--border);
+}
+
 .footer__aain {
-  text-align: left;
   font-size: 0.82rem;
   color: var(--text-tertiary);
   line-height: 1.55;
-  justify-self: end;
-  max-width: 22rem;
+  max-width: 36rem;
 }
 
 .footer__aain strong {
@@ -2877,7 +2893,7 @@ a.footer-link:hover {
 }
 
 .footer__sub {
-  margin-top: 0.35rem;
+  margin-top: 0.3rem;
   color: var(--text-tertiary);
 }
 
@@ -2892,13 +2908,11 @@ a.footer-link:hover {
 @media (max-width: 900px) {
   .footer__inner {
     grid-template-columns: 1fr 1fr;
-    gap: 2rem 2rem;
+    gap: 2rem;
   }
 
-  .footer__aain {
+  .footer__brand-col {
     grid-column: 1 / -1;
-    justify-self: start;
-    max-width: none;
   }
 }
 
@@ -2917,13 +2931,23 @@ a.footer-link:hover {
     margin-inline: auto;
   }
 
+  .footer__link-grid {
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    max-width: 16rem;
+    margin-inline: auto;
+  }
+
   .footer__social-list {
     align-items: center;
   }
 
-  .footer__aain {
-    justify-self: center;
+  .footer__aain-bar {
     text-align: center;
+  }
+
+  .footer__aain {
+    margin-inline: auto;
   }
 }
 
