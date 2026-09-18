@@ -605,7 +605,7 @@ function renderIdentity(
 /**
  * Hero CTAs — three persona-targeted buttons so the landing page
  * speaks to every audience at once without burying them in nav clicks:
- *   1. Primary   → prospective members ("Join our next event")
+ *   1. Primary   → prospective members ("Join us" → Teams/Discord when set)
  *   2. Secondary → partners/sponsors ("Become a partner")
  *   3. Tertiary  → curious learners ("Start learning")
  *
@@ -613,6 +613,18 @@ function renderIdentity(
  * when blank, falls back to a sensible default that anchors into the
  * relevant section so a freshly deployed site still feels complete.
  */
+function communityJoinUrl(remote: RemoteConfig | null): string | null {
+  const merged: Record<string, string> = { ...(config.links ?? {}) };
+  for (const [k, v] of Object.entries(remote?.social_links ?? {})) {
+    if (v) merged[k] = v;
+  }
+  for (const key of ["teams", "discord"] as const) {
+    const url = merged[key]?.trim();
+    if (url && safeHttpUrl(url)) return url;
+  }
+  return null;
+}
+
 function renderHeroActions(remote: RemoteConfig | null) {
   const container = document.getElementById("hero-actions");
   if (!container) return;
@@ -645,6 +657,7 @@ function renderHeroActions(remote: RemoteConfig | null) {
     };
   };
 
+  const joinUrl = communityJoinUrl(remote);
   const eventsAnchor = document.getElementById("events") ? "#events" : "#home";
   // Partner CTA defaults to #sponsor (in-site modal posted to the
   // dashboard inbox), since every network-connected chapter gets
@@ -652,12 +665,12 @@ function renderHeroActions(remote: RemoteConfig | null) {
   // turnover, unlike a per-officer mailto. Eboards who prefer a
   // raw mailto can override via Customize → Hero CTAs.
   const buttons: HeroCta[] = [
-    // 1 — prospective members
+    // 1 — prospective members: Teams/Discord join when configured
     pick(
       remote?.cta_primary_label,
       remote?.cta_primary_href,
-      "Join our next event",
-      eventsAnchor,
+      joinUrl ? "Join us" : "Join our next event",
+      joinUrl ?? eventsAnchor,
       "primary",
     ),
     // 2 — partners / sponsors
@@ -668,12 +681,12 @@ function renderHeroActions(remote: RemoteConfig | null) {
       "#sponsor",
       "ghost",
     ),
-    // 3 — curious learners
+    // 3 — curious learners (or events if Join us already took the primary slot)
     pick(
       remote?.cta_tertiary_label,
       remote?.cta_tertiary_href,
-      "Start learning",
-      "#learn",
+      joinUrl ? "See upcoming events" : "Start learning",
+      joinUrl ? eventsAnchor : "#learn",
       "ghost-accent",
     ),
   ];
