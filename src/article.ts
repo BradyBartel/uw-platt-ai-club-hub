@@ -267,7 +267,7 @@ async function init() {
     });
 
   } catch (e) {
-    container.innerHTML = `<div class="callout callout--danger"><div class="callout__content"><div class="callout__title">Could not load content</div><div class="callout__body"><p>Unable to fetch this article. Please check your internet connection and try again.</p><p><a href="/">Back to home</a></p></div></div></div>`;
+    container.innerHTML = `<div class="callout callout--danger"><div class="callout__content"><div class="callout__title">Could not load content</div><div class="callout__body"><p>Unable to fetch this article. Please check your internet connection and try again.</p><p><a href="./">Back to home</a></p></div></div></div>`;
   }
 }
 
