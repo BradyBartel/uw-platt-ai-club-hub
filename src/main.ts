@@ -914,9 +914,6 @@ function wireSponsorWidget(chapterName: string) {
   const maybeOpen = () => {
     if (window.location.hash !== "#sponsor") return;
     whenSponsorWidgetReady(() => {
-      // Ensure the home partner section is visible before opening.
-      const section = document.getElementById("sponsor");
-      if (section) section.style.display = "";
       openSponsorWidget();
       history.replaceState(
         null,

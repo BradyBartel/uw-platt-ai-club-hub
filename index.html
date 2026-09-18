@@ -432,31 +432,20 @@
   <!-- ══ Learn page CTA band — see Team band for the pattern ══════ -->
   <section class="page-cta-band" data-page="learn"></section>
 
-  <!-- ══ Industry partners — ALL sponsor inquiry widget ═══════════
-       Button is wired by dashboard.all-ai-network.org/widgets/sponsor.js.
-       Submissions land in Outreach → Inbox; no API key needed. -->
-  <section class="section section--partner" id="sponsor" data-page="home">
-    <div class="section__inner section__inner--partner">
-      <div class="partner-block">
-        <div class="section__kicker">Industry partners</div>
-        <h2 class="section__title">Partner with us</h2>
-        <p class="section__desc">
-          Sponsor an event, bring a speaker, recruit our members, or propose
-          something else. Your note goes straight to the eboard inbox.
-        </p>
-        <button
-          type="button"
-          class="btn btn--primary"
-          data-aain-sponsor="uw-platt-ai-club"
-          data-aain-sponsor-title="Work with Platteville AI Club"
-          data-aain-sponsor-accent="#1A64B7"
-          id="sponsor-cta"
-        >
-          Become a partner
-        </button>
-      </div>
-    </div>
-  </section>
+  <!-- Hidden ALL sponsor widget trigger — hero / page "Become a partner"
+       CTAs use href="#sponsor", which clicks this button. -->
+  <button
+    type="button"
+    class="sponsor-widget-trigger"
+    data-aain-sponsor="uw-platt-ai-club"
+    data-aain-sponsor-title="Work with Platteville AI Club"
+    data-aain-sponsor-accent="#1A64B7"
+    id="sponsor-cta"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    Become a partner
+  </button>
 
   <!-- ══ Footer ════════════════════════════════════════════════════
        footer__aain block is populated at runtime by main.ts from the
