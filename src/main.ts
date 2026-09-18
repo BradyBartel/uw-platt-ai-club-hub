@@ -637,24 +637,6 @@ function chapterMemberJoinUrl(): string | null {
   return `${DASHBOARD_ORIGIN}/join/${encodeURIComponent(slug)}`;
 }
 
-/** MSOE-style "Ready to Join?" band above the footer → Teams/Discord. */
-function renderJoinCta(remote: RemoteConfig | null) {
-  const section = document.getElementById("join");
-  const btn = document.getElementById("join-teams-cta") as HTMLAnchorElement | null;
-  if (!section || !btn) return;
-
-  const url = communityChatUrl(remote);
-  if (!url) {
-    section.hidden = true;
-    return;
-  }
-
-  btn.href = url;
-  const isTeams = /teams\.microsoft\.com/i.test(url);
-  btn.textContent = isTeams ? "Join Our Teams" : "Join our community";
-  section.hidden = false;
-}
-
 function renderHeroActions(remote: RemoteConfig | null) {
   const container = document.getElementById("hero-actions");
   if (!container) return;
@@ -2205,7 +2187,9 @@ function renderSocials(links: Record<string, string>) {
     if (v) merged[k] = v;
   }
 
-  const entries = Object.entries(merged).filter(([, v]) => v);
+  const entries = Object.entries(merged).filter(
+    ([key, v]) => v && key !== "teams",
+  );
   if (!entries.length) {
     container.innerHTML = "";
     return;
@@ -2959,7 +2943,6 @@ async function init() {
   renderHeroActions(remote);
   renderPillars();
   renderPageCtaBands();
-  renderJoinCta(remote);
   // Official ALL sponsor widget — Partner section button + #sponsor hash.
   wireSponsorWidget(
     bundle?.chapter?.name ?? remote?.hub_name ?? config.hub_name,
