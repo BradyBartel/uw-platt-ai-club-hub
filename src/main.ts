@@ -605,15 +605,15 @@ function renderIdentity(
 /**
  * Hero CTAs — three persona-targeted buttons so the landing page
  * speaks to every audience at once without burying them in nav clicks:
- *   1. Primary   → prospective members ("Join us" → Teams/Discord when set)
+ *   1. Primary   → join the ALL chapter roster ("Join us")
  *   2. Secondary → partners/sponsors ("Become a partner")
- *   3. Tertiary  → curious learners ("Start learning")
+ *   3. Tertiary  → Teams chat when set, else learning tree
  *
  * Each slot accepts a chapter-authored label+href from the dashboard;
  * when blank, falls back to a sensible default that anchors into the
  * relevant section so a freshly deployed site still feels complete.
  */
-function communityJoinUrl(remote: RemoteConfig | null): string | null {
+function communityChatUrl(remote: RemoteConfig | null): string | null {
   const merged: Record<string, string> = { ...(config.links ?? {}) };
   for (const [k, v] of Object.entries(remote?.social_links ?? {})) {
     if (v) merged[k] = v;
@@ -625,13 +625,20 @@ function communityJoinUrl(remote: RemoteConfig | null): string | null {
   return null;
 }
 
-/** MSOE-style "Ready to Join?" band above the footer. */
+/** Dashboard membership join — adds them to the chapter roster. */
+function chapterMemberJoinUrl(): string | null {
+  const slug = config.hub_id?.trim().toLowerCase();
+  if (!slug) return null;
+  return `${DASHBOARD_ORIGIN}/join/${encodeURIComponent(slug)}`;
+}
+
+/** MSOE-style "Ready to Join?" band above the footer → Teams/Discord. */
 function renderJoinCta(remote: RemoteConfig | null) {
   const section = document.getElementById("join");
   const btn = document.getElementById("join-teams-cta") as HTMLAnchorElement | null;
   if (!section || !btn) return;
 
-  const url = communityJoinUrl(remote);
+  const url = communityChatUrl(remote);
   if (!url) {
     section.hidden = true;
     return;
@@ -675,7 +682,8 @@ function renderHeroActions(remote: RemoteConfig | null) {
     };
   };
 
-  const joinUrl = communityJoinUrl(remote);
+  const memberJoinUrl = chapterMemberJoinUrl();
+  const chatUrl = communityChatUrl(remote);
   const eventsAnchor = document.getElementById("events") ? "#events" : "#home";
   // Partner CTA defaults to #sponsor (in-site modal posted to the
   // dashboard inbox), since every network-connected chapter gets
@@ -683,12 +691,12 @@ function renderHeroActions(remote: RemoteConfig | null) {
   // turnover, unlike a per-officer mailto. Eboards who prefer a
   // raw mailto can override via Customize → Hero CTAs.
   const buttons: HeroCta[] = [
-    // 1 — prospective members: Teams/Discord join when configured
+    // 1 — join the ALL chapter so they appear on the roster / leaderboard
     pick(
       remote?.cta_primary_label,
       remote?.cta_primary_href,
-      joinUrl ? "Join us" : "Join our next event",
-      joinUrl ?? eventsAnchor,
+      memberJoinUrl ? "Join us" : "Join our next event",
+      memberJoinUrl ?? eventsAnchor,
       "primary",
     ),
     // 2 — partners / sponsors
@@ -699,12 +707,12 @@ function renderHeroActions(remote: RemoteConfig | null) {
       "#sponsor",
       "ghost",
     ),
-    // 3 — curious learners (or events if Join us already took the primary slot)
+    // 3 — Teams chat when configured, otherwise curriculum
     pick(
       remote?.cta_tertiary_label,
       remote?.cta_tertiary_href,
-      joinUrl ? "See upcoming events" : "Start learning",
-      joinUrl ? eventsAnchor : "#learn",
+      chatUrl ? "Join Our Teams" : "Start learning",
+      chatUrl ?? "#learn",
       "ghost-accent",
     ),
   ];
