@@ -2768,45 +2768,25 @@ a.social-card__link:hover {
 
 .footer {
   border-top: 1px solid var(--border);
-  padding: 3rem 1.5rem 2.5rem;
+  padding: 3.5rem 1.5rem 2.75rem;
   background: rgba(0, 0, 0, 0.4);
   margin-top: 4rem;
 }
 
-/* Two-column desktop, three-row mobile. Socials go under the brand
-   so an empty socials slot doesn't leave a mid-row gap between
-   brand + attribution. */
 .footer__inner {
   max-width: 1280px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas:
-    "brand aain"
-    "socials aain";
-  gap: 0.75rem 2rem;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 1fr);
+  gap: 2.5rem 3rem;
   align-items: start;
 }
 
-.footer__brand { grid-area: brand; }
-.footer__socials { grid-area: socials; justify-content: flex-start; }
-.footer__aain { grid-area: aain; }
-
-/* When socials are empty (no dashboard links + no local config),
-   swallow the row so there's no hanging whitespace. */
-.footer__socials:empty { display: none; }
-
-@media (max-width: 720px) {
-  .footer__inner {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "brand"
-      "socials"
-      "aain";
-    gap: 1.25rem;
-    text-align: center;
-  }
-  .footer__socials { justify-content: center; }
+.footer__brand-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
 }
 
 .footer__brand {
@@ -2822,12 +2802,14 @@ a.social-card__link:hover {
   object-fit: contain;
   border-radius: 6px;
   display: block;
+  flex-shrink: 0;
 }
 
 .footer__name {
   font-weight: 700;
   color: var(--text-primary);
   font-size: 1rem;
+  letter-spacing: -0.01em;
 }
 
 .footer__uni {
@@ -2835,42 +2817,59 @@ a.social-card__link:hover {
   color: var(--text-tertiary);
 }
 
-.footer__socials {
-  display: flex;
-  gap: 0.6rem;
-  justify-content: center;
-  flex-wrap: wrap;
+.footer__blurb {
+  margin: 0;
+  max-width: 28rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
 
-.footer-social {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  transition: border-color 0.15s, color 0.15s, transform 0.15s;
+.footer__social-col {
+  min-width: 0;
 }
-.footer-social:hover {
+
+.footer__heading {
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.footer__social-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.footer-link {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+a.footer-link:hover {
   color: var(--color-primary);
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
+}
+
+.footer-link--placeholder {
+  color: var(--text-tertiary);
+  cursor: default;
+  opacity: 0.75;
 }
 
 .footer__aain {
-  text-align: right;
+  text-align: left;
   font-size: 0.82rem;
   color: var(--text-tertiary);
-  line-height: 1.5;
-  align-self: center;
-}
-
-@media (max-width: 720px) {
-  .footer__aain { text-align: center; align-self: auto; }
-  .footer__brand { justify-content: center; }
+  line-height: 1.55;
+  justify-self: end;
+  max-width: 22rem;
 }
 
 .footer__aain strong {
@@ -2878,8 +2877,54 @@ a.social-card__link:hover {
 }
 
 .footer__sub {
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
   color: var(--text-tertiary);
+}
+
+.footer__sub a {
+  color: inherit;
+}
+
+.footer__sub a:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 900px) {
+  .footer__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem 2rem;
+  }
+
+  .footer__aain {
+    grid-column: 1 / -1;
+    justify-self: start;
+    max-width: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer__inner {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    text-align: center;
+  }
+
+  .footer__brand {
+    justify-content: center;
+  }
+
+  .footer__blurb {
+    margin-inline: auto;
+  }
+
+  .footer__social-list {
+    align-items: center;
+  }
+
+  .footer__aain {
+    justify-self: center;
+    text-align: center;
+  }
 }
 
 /* ══ Utility ══════════════════════════════════════════════════ */

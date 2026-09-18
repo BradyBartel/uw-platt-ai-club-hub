@@ -448,21 +448,29 @@
   </button>
 
   <!-- ══ Footer ════════════════════════════════════════════════════
-       footer__aain block is populated at runtime by main.ts from the
-       public network-stats endpoint on aain-api — chapters_active and
-       members_total drive the "N chapters · M+ members" line so every
-       chapter fork stays in sync with reality automatically. Falls
-       back to the static text below if the fetch fails. -->
+       MSOE-style columns: brand · social media · ALL network.
+       Social list is filled by main.ts::renderSocials. Network stats
+       line is refreshed from the public aain-api endpoint. -->
   <footer class="footer">
     <div class="footer__inner">
-      <div class="footer__brand">
-        <img id="footer-logo-img" class="footer__logo-img" src="./paic-logo.png" alt="Platteville AI Club" />
-        <div>
-          <div class="footer__name" id="footer-hub-name">Platteville AI Club</div>
-          <div class="footer__uni" id="footer-university">University of Wisconsin–Platteville</div>
+      <div class="footer__brand-col">
+        <div class="footer__brand">
+          <img id="footer-logo-img" class="footer__logo-img" src="./paic-logo.png" alt="Platteville AI Club" />
+          <div>
+            <div class="footer__name" id="footer-hub-name">Platteville AI Club</div>
+            <div class="footer__uni" id="footer-university">University of Wisconsin–Platteville</div>
+          </div>
         </div>
+        <p class="footer__blurb" id="footer-blurb">
+          UW-Platteville's student-run applied AI community — workshops, projects, and real portfolio work.
+        </p>
       </div>
-      <div class="footer__socials" id="footer-socials"></div>
+
+      <div class="footer__social-col">
+        <h3 class="footer__heading">Social Media</h3>
+        <ul class="footer__social-list" id="footer-socials"></ul>
+      </div>
+
       <div class="footer__aain">
         <a href="https://all-ai-network.org" class="link" target="_blank" rel="noopener">
           Powered by <strong>ALL Applied AI Network</strong>

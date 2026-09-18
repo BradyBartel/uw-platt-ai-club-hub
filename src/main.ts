@@ -602,6 +602,7 @@ function renderIdentity(
   setText("about-title", `About ${hubName}`);
   setText("footer-hub-name", hubName);
   setText("footer-university", university);
+  setText("footer-blurb", tagline);
 }
 
 /**
@@ -2155,52 +2156,55 @@ function renderOfficers(officers: Officer[], remote: RemoteConfig | null) {
    Social links footer
    ────────────────────────────────────────────────────────────────── */
 
-const SOCIAL_ICONS: Record<string, string> = {
-  discord: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.32 4.37a19.79 19.79 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.2.38-.43.87-.59 1.26a18.27 18.27 0 0 0-5.52 0c-.17-.39-.4-.88-.6-1.26a.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.89 1.52.07.07 0 0 0-.03.03C.44 9.05-.27 13.58.1 18.06a.1.1 0 0 0 .04.07 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .09-.03c.46-.63.87-1.3 1.23-2a.07.07 0 0 0-.04-.11 13.1 13.1 0 0 1-1.88-.9.08.08 0 0 1-.01-.13c.13-.1.25-.2.37-.3a.08.08 0 0 1 .08-.01c3.93 1.8 8.18 1.8 12.07 0a.08.08 0 0 1 .08.01c.12.1.24.2.37.3a.08.08 0 0 1-.01.13 12.3 12.3 0 0 1-1.88.9.08.08 0 0 0-.04.11c.37.7.78 1.37 1.24 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .04-.07c.44-5.18-.73-9.67-3.1-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42s.95-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42s.95-2.42 2.15-2.42c1.22 0 2.19 1.1 2.16 2.42 0 1.33-.94 2.42-2.16 2.42z"/></svg>`,
-  teams: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.625 7.5h-3.75V5.625A1.875 1.875 0 0 0 15 3.75h-6A1.875 1.875 0 0 0 7.125 5.625V7.5h-3.75A1.875 1.875 0 0 0 1.5 9.375v8.25A1.875 1.875 0 0 0 3.375 19.5h17.25a1.875 1.875 0 0 0 1.875-1.875v-8.25A1.875 1.875 0 0 0 20.625 7.5zM8.25 5.625c0-.207.168-.375.375-.375h6c.207 0 .375.168.375.375V7.5h-6.75V5.625zM3.375 9h3.75v9H3.375a.375.375 0 0 1-.375-.375v-8.25c0-.207.168-.375.375-.375zm17.25 8.625a.375.375 0 0 1-.375.375H8.25V9h12c.207 0 .375.168.375.375v8.25z"/><circle cx="17.25" cy="5.25" r="2.25"/><path d="M19.5 9.75a3 3 0 0 1 3 3v3.75h-1.5v-3.75a1.5 1.5 0 0 0-1.5-1.5h-.75V9.75h.75z"/></svg>`,
-  github: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.77 5.46.77 11.73c0 4.96 3.22 9.17 7.68 10.66.56.1.77-.24.77-.54v-2.06c-3.13.68-3.79-1.3-3.79-1.3-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.68.08-.68 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.72.39-1.22.72-1.5-2.5-.28-5.12-1.25-5.12-5.55 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.97 0 0 .94-.3 3.09 1.15a10.8 10.8 0 0 1 5.62 0c2.15-1.46 3.09-1.15 3.09-1.15.61 1.54.23 2.69.11 2.97.72.79 1.16 1.79 1.16 3.02 0 4.31-2.63 5.26-5.14 5.54.4.35.76 1.03.76 2.07v3.07c0 .3.21.65.78.54 4.45-1.49 7.67-5.7 7.67-10.66C23.23 5.46 18.27.5 12 .5z"/></svg>`,
-  instagram: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37a4 4 0 1 1-7.914 1.172A4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`,
-  linkedin: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8.34 18.34V9.67H5.67v8.67zM7 8.5a1.54 1.54 0 1 0 0-3.08 1.54 1.54 0 0 0 0 3.08zm11.34 9.84v-4.75c0-2.53-1.35-3.7-3.15-3.7-1.45 0-2.1.8-2.47 1.37V9.67h-2.68s.03.76 0 8.67h2.68v-4.84c0-.24.02-.48.09-.65.18-.48.62-.98 1.35-.98.96 0 1.34.73 1.34 1.8v4.67z"/></svg>`,
-  twitter: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
-  youtube: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3 3 0 0 0-2.11-2.12C19.505 3.545 12 3.545 12 3.545s-7.504 0-9.389.521A3 3 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3 3 0 0 0 2.11 2.12c1.885.521 9.389.521 9.389.521s7.504 0 9.389-.521a3 3 0 0 0 2.11-2.12C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12z"/></svg>`,
-  email: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>`,
-};
-
 const SOCIAL_LABELS: Record<string, string> = {
   discord: "Discord",
   teams: "Microsoft Teams",
   github: "GitHub",
   instagram: "Instagram",
   linkedin: "LinkedIn",
+  pioneerlink: "PioneerLink",
   twitter: "Twitter / X",
   youtube: "YouTube",
   email: "Email",
 };
 
+/** Footer Social Media column — text links like MSOE. Always shows
+ *  LinkedIn + PioneerLink slots (placeholders until URLs are set). */
 function renderSocials(links: Record<string, string>) {
   const container = document.getElementById("footer-socials");
   if (!container) return;
 
-  // Merge remote over bundled so a fresh fork has something.
   const merged: Record<string, string> = { ...(config.links ?? {}) };
   for (const [k, v] of Object.entries(links)) {
     if (v) merged[k] = v;
   }
 
-  const entries = Object.entries(merged).filter(
-    ([key, v]) => v && key !== "teams",
+  // Prefer these two; then any other configured socials (not Teams —
+  // that lives on the hero CTA).
+  const preferred = ["linkedin", "pioneerlink"];
+  const extras = Object.keys(merged).filter(
+    (k) =>
+      k !== "teams" &&
+      !preferred.includes(k) &&
+      Boolean(merged[k]?.trim()),
   );
-  if (!entries.length) {
-    container.innerHTML = "";
-    return;
-  }
+  const keys = [...preferred, ...extras];
 
-  container.innerHTML = entries
-    .map(([key, url]) => {
-      const href = key === "email" ? `mailto:${url}` : url;
-      const icon = SOCIAL_ICONS[key] ?? SOCIAL_ICONS.email;
+  container.innerHTML = keys
+    .map((key) => {
       const label = SOCIAL_LABELS[key] ?? key;
-      return `<a class="footer-social" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeAttr(label)}" title="${escapeAttr(label)}">${icon}</a>`;
+      const raw = merged[key]?.trim() ?? "";
+      const href =
+        key === "email"
+          ? raw
+            ? `mailto:${raw}`
+            : ""
+          : safeHttpUrl(raw) ?? "";
+
+      if (href) {
+        return `<li><a class="footer-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a></li>`;
+      }
+      return `<li><span class="footer-link footer-link--placeholder" title="Add this URL in hub.config.json → links.${escapeAttr(key)}">${escapeHtml(label)}</span></li>`;
     })
     .join("");
 }
